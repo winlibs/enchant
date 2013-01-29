@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{44BF74D0-5462-4A3B-8768-61E0DEF81B7B}</ProjectGuid>
+    <RootNamespace>unittest-enchant</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\obj\$(Configuration)\$(TargetName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\obj\$(Configuration)\$(TargetName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command />
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\UnitTest++\src;$(SolutionDir)..\lib\glib\include\glib-2.0;$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VERSION="1.3.1";WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <ForcedIncludeFiles>$(SolutionDir)..\src\config.h.win32;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>glib-2.0-vs8.lib;UnitTest++.vsnet2005.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\glib\$(Configuration); $(SolutionDir)..\lib\UnitTest++\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Run All Tests</Message>
+      <Command>"$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\UnitTest++\src;$(SolutionDir)..\lib\glib\include\glib-2.0;$(SolutionDir)..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>VERSION="1.3.1";WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>$(SolutionDir)..\src\config.h.win32;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>glib-2.0-vs8.lib;UnitTest++.vsnet2005.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\lib\glib\$(Configuration); $(SolutionDir)..\lib\UnitTest++\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Run All Tests</Message>
+      <Command>"$(TargetPath)"
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\unittests\main.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_describe_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_dict_exists_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_free_dict_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_free_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_get_error_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_init_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_list_dicts_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_request_dict_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_request_pwl_dict_tests.cpp" />
+    <ClCompile Include="..\unittests\broker\enchant_broker_set_ordering_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_add_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_add_to_session_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_check_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_describe_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_free_string_list_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_get_error_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_is_added_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_is_removed_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_remove_from_session_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_remove_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_store_replacement_tests.cpp" />
+    <ClCompile Include="..\unittests\dictionary\enchant_dict_suggest_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_broker_set_error_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_dict_set_error_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_get_prefix_dir_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_get_registry_value_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_get_user_config_dirs_tests.cpp" />
+    <ClCompile Include="..\unittests\provider\enchant_provider_get_user_language_tests.cpp" />
+    <ClCompile Include="..\unittests\pwl\enchant_pwl_tests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\unittests\broker\enchant_broker_dict_exists_tests.i" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\unittests\EnchantBrokerTestFixture.h" />
+    <ClInclude Include="..\unittests\EnchantDictionaryTestFixture.h" />
+    <ClInclude Include="..\unittests\EnchantTestFixture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libenchant.vcxproj">
+      <Project>{e0db6274-f44c-48e6-ae30-c00d59864569}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="libenchant_mock_provider.vcxproj">
+      <Project>{a8f1c09a-a244-441b-804c-635106305056}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

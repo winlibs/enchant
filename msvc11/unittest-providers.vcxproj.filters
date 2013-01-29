@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Provider">
+      <UniqueIdentifier>{ec13715f-ff03-418b-99f4-d126972dd350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dictionary">
+      <UniqueIdentifier>{f5c3367e-f966-4a8a-a4bb-6d1dac610fd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7843f05e-694d-4715-8601-0e33092a07b8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\unittests\enchant_providers\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Provider\provider_describe_dict.cpp">
+      <Filter>Source Files\Provider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Provider\provider_dictionary_exists.cpp">
+      <Filter>Source Files\Provider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Provider\provider_identify_dict.cpp">
+      <Filter>Source Files\Provider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Provider\provider_list_dicts.cpp">
+      <Filter>Source Files\Provider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Provider\provider_request_dict.cpp">
+      <Filter>Source Files\Provider</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Dictionary\dictionary_check.cpp">
+      <Filter>Source Files\Dictionary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unittests\enchant_providers\Dictionary\dictionary_suggest.cpp">
+      <Filter>Source Files\Dictionary</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\unittests\enchant_providers\unittest_enchant_providers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\unittests\enchant_providers\Readme.txt" />
+  </ItemGroup>
+</Project>
