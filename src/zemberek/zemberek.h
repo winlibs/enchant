@@ -30,7 +30,6 @@
 #ifndef ZEMBEREK_H
 #define ZEMBEREK_H
 
-#include "glib_version_min.h"
 #include <dbus/dbus-glib.h>
 #include <glib.h>
 

@@ -65,7 +65,6 @@
 #include <io.h>
 #endif
 
-#include "glib_version_min.h"
 #include <glib.h>
 #include <glib/gstdio.h>
 #include "enchant-provider.h"
@@ -290,7 +289,7 @@ static void enchant_pwl_refresh_from_file(EnchantPWL* pwl)
 	if(!pwl->filename)
 		return;
 
-	if(g_stat(pwl->filename, ((GStatBuf *)&stats))!=0)
+	if(g_stat(pwl->filename, &stats)!=0)
 		return;    /*presumably I won't be able to open the file either*/
 	
 	if(pwl->file_changed == stats.st_mtime)
@@ -401,7 +400,7 @@ void enchant_pwl_add(EnchantPWL *pwl,
 				struct stat stats;
 
 				enchant_lock_file (f);
-				if(g_stat(pwl->filename, ((GStatBuf *)&stats))==0)
+				if(g_stat(pwl->filename, &stats)==0)
 					pwl->file_changed = stats.st_mtime;
 
                 /* we write the new line first since we can't guarantee
@@ -483,7 +482,7 @@ void enchant_pwl_remove(EnchantPWL *pwl,
 						}
 					g_free(key);
 					
-					if(g_stat(pwl->filename, ((GStatBuf *)&stats))==0)
+					if(g_stat(pwl->filename, &stats)==0)
 						pwl->file_changed = stats.st_mtime;
 
 					enchant_unlock_file (f);

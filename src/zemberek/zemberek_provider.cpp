@@ -27,7 +27,6 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "glib_version_min.h"
 #include <glib.h>
 #include <string.h>
 

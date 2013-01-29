@@ -36,7 +36,6 @@
 #include <string>
 #include <vector>
 
-#include "glib_version_min.h"
 #include <glib.h>
 
 #include "enchant.h"

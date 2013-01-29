@@ -19,7 +19,6 @@
  * 02110-1301, USA.
  */
 
-#include "glib_version_min.h"
 #include <glib.h>
 #include <gmodule.h>
 

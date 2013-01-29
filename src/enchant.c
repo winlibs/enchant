@@ -33,7 +33,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include "glib_version_min.h"
 #include <glib.h>
 #include <gmodule.h>
 #include <glib/gstdio.h>

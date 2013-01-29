@@ -32,7 +32,6 @@
 #define ENCHANT_PROVIDER_H
 
 #include <enchant.h>
-#include "glib_version_min.h"
 #include <glib.h>
 #include <stdio.h>
 

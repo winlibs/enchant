@@ -33,7 +33,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "glib_version_min.h"
 #include <glib.h>
 #include <hspell.h>
 

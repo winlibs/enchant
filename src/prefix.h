@@ -13,7 +13,6 @@
 #ifndef __BINRELOC_H__
 #define __BINRELOC_H__
 
-#include "glib_version_min.h"
 #include <glib.h>
 
 G_BEGIN_DECLS

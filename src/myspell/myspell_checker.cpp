@@ -54,7 +54,6 @@ ENCHANT_PLUGIN_DECLARE("Myspell")
 
 #define G_ICONV_INVALID (GIConv)-1
 
-#include "glib_version_min.h"
 #include <glib.h>
 
 /***************************************************************************/

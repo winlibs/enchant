@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "glib_version_min.h"
 #include <glib.h>
 
 #ifdef HAVE_PSPELL_H

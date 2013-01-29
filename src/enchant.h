@@ -38,8 +38,6 @@
 extern "C" {
 #endif
 
-#include "glib_version_min.h"
-
 #ifdef _WIN32
 #ifdef _ENCHANT_BUILD
 #define ENCHANT_MODULE_EXPORT(x) __declspec(dllexport) x
