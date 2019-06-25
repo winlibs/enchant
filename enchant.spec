@@ -1,5 +1,5 @@
 %define name enchant
-%define version 1.6.0
+%define version 1.6.1
 %define release 1
 
 Summary: An Enchanting Spell Checking Library

@@ -247,10 +247,6 @@ EnchantPWL* enchant_pwl_init(void)
 	return pwl;
 }
 
-#ifndef BUFSIZ
-#define BUFSIZ 1024
-#endif
-
 /**
  * enchant_pwl_init_with_file
  *
@@ -280,7 +276,7 @@ EnchantPWL* enchant_pwl_init_with_file(const char * file)
 
 static void enchant_pwl_refresh_from_file(EnchantPWL* pwl)
 {
-	char buffer[BUFSIZ];
+	char buffer[BUFSIZ + 1];
 	char* line;
 	size_t line_number = 1;
 	FILE *f;
@@ -322,7 +318,7 @@ static void enchant_pwl_refresh_from_file(EnchantPWL* pwl)
 				line[l] = '\0';
 			else if(!feof(f)) /* ignore lines longer than BUFSIZ. */ 
 				{
-					g_warning ("Line too long (ignored) in %s at line:%u\n", pwl->filename, line_number);
+					g_warning ("Line too long (ignored) in %s at line:%zu\n", pwl->filename, line_number);
 					while (NULL != (fgets (buffer, sizeof (buffer), f)))
 						{
 							if (line[strlen(buffer)-1]=='\n') 
@@ -331,12 +327,12 @@ static void enchant_pwl_refresh_from_file(EnchantPWL* pwl)
 					continue;
 				}
 						
-			if( line[0] != '#')
+			if( line[0] && line[0] != '#')
 				{
 					if(g_utf8_validate(line, -1, NULL))
 						enchant_pwl_add_to_trie(pwl, line, strlen(line));
 					else
-						g_warning ("Bad UTF-8 sequence in %s at line:%u\n", pwl->filename, line_number);
+						g_warning ("Bad UTF-8 sequence in %s at line:%zu\n", pwl->filename, line_number);
 				}
 		}
 	
@@ -394,20 +390,30 @@ void enchant_pwl_add(EnchantPWL *pwl,
 	{
 		FILE *f;
 		
-		f = enchant_fopen(pwl->filename, "a");
+		f = enchant_fopen(pwl->filename, "a+");
 		if (f)
 			{
 				struct stat stats;
+
+				/* Since this function does not signal I/O
+				   errors, only use return values to avoid
+				   doing things that seem futile. */
 
 				enchant_lock_file (f);
 				if(g_stat(pwl->filename, &stats)==0)
 					pwl->file_changed = stats.st_mtime;
 
-                /* we write the new line first since we can't guarantee
-                   that the file was terminated by a new line before
-                   and we are just appending to the end of the file */
-				fwrite ("\n", sizeof(char), 1, f);
-				fwrite (word, sizeof(char), len, f);
+				/* Add a newline if the file doesn't end with one. */
+				if (fseek (f, -1, SEEK_END) == 0 &&
+				    getc (f) != '\n')
+					{
+						putc ('\n', f);
+					}
+
+				if (fwrite (word, sizeof(char), len, f) == len)
+					{
+						putc ('\n', f);
+					}
 				enchant_unlock_file (f);
 				fclose (f);
 			}	
@@ -676,7 +682,7 @@ static void enchant_pwl_case_and_denormalize_suggestions(EnchantPWL *pwl,
 
 			suggestion = g_hash_table_lookup (pwl->words_in_trie, suggs_list->suggs[i]);
 			suggestion_len = strlen(suggestion);
-			
+
 			if(utf8_case_convert_function &&
 					!enchant_is_all_caps(suggestion, suggestion_len))
 				{
@@ -692,10 +698,10 @@ static void enchant_pwl_case_and_denormalize_suggestions(EnchantPWL *pwl,
 		}
 }
 
-static int best_distance(const char*const*const suggs, const char *const word, size_t len)
+static int best_distance(char** suggs, const char *const word, size_t len)
 {
 	int best_dist;
-	const char*const* sugg_it;
+	char** sugg_it;
 	char* normalized_word;
 
 	normalized_word = g_utf8_normalize (word, len, G_NORMALIZE_NFD);

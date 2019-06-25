@@ -54,10 +54,6 @@
 #define ENCHANT_USER_PATH_EXTENSION ".enchant"
 #endif
 
-#ifdef ENABLE_BINRELOC
-#include "prefix.h"
-#endif
-
 ENCHANT_PLUGIN_DECLARE("Enchant")
 
 static char *
@@ -167,6 +163,31 @@ _enchant_ensure_dir_exists (const char* dir)
 }
 
 static GSList *
+_enchant_get_dirs_from_string (const char * string)
+{
+	char **tokens;
+	GSList *dirs = NULL;
+
+#ifdef _WIN32
+	tokens = g_strsplit (string, ";", 0);
+#else
+	tokens = g_strsplit (string, ":", 0);
+#endif
+	if (tokens != NULL) {
+		int i;
+		for (i = 0; tokens[i]; i++)
+			{
+				char *token = g_strstrip(tokens[i]);
+				dirs = g_slist_append (dirs, g_strdup (token));
+			}
+
+		g_strfreev (tokens);
+	}
+
+	return dirs;
+}
+
+static GSList *
 enchant_get_user_dirs (void)
 {
 	GSList *user_dirs = NULL;
@@ -240,7 +261,7 @@ enchant_get_module_dirs (void)
 
 #if defined(ENCHANT_GLOBAL_MODULE_DIR)
 	module_dirs = enchant_slist_append_unique_path (module_dirs, g_strdup (ENCHANT_GLOBAL_MODULE_DIR));
-#else
+#endif
 	/* Dynamically locate library and search for modules relative to it. */
 	prefix = enchant_get_prefix_dir();
 	if(prefix)
@@ -249,7 +270,22 @@ enchant_get_module_dirs (void)
 			g_free(prefix);
 			module_dirs = enchant_slist_append_unique_path (module_dirs, module_dir);
 		}
-#endif
+
+	/* Use ENCHANT_MODULE_PATH env var */
+	{
+		const gchar* env = g_getenv("ENCHANT_MODULE_PATH");
+		if (env) {
+			const gchar * path = g_filename_to_utf8(env, -1, NULL, NULL, NULL);
+			if (path)
+				{
+					GSList *dir;
+					for (dir = _enchant_get_dirs_from_string (path); dir; dir = dir->next)
+						{
+							module_dirs = enchant_slist_append_unique_path (module_dirs, dir->data);
+						}
+				}
+		}
+	}
 
 	return module_dirs;
 }
@@ -332,7 +368,7 @@ enchant_fopen (const gchar *filename, const gchar *mode)
 }
 
 /**
- * enchant_get_user_config_dir
+ * enchant_get_user_config_dirs
  *
  * Returns: the user's enchant directory, or %null. Returned value
  * must be free'd.
@@ -551,10 +587,10 @@ enchant_session_destroy (EnchantSession * session)
 
 static EnchantSession *
 enchant_session_new_with_pwl (EnchantProvider * provider, 
-							  const char * const pwl, 
-							  const char * const excl,
-							  const char * const lang,
-							  gboolean fail_if_no_pwl)
+			      const char * const pwl, 
+			      const char * const excl,
+			      const char * const lang,
+			      gboolean fail_if_no_pwl)
 {
 	EnchantSession * session;
 	EnchantPWL *personal = NULL;
@@ -623,19 +659,18 @@ enchant_session_new (EnchantProvider *provider, const char * const lang)
 	user_config_dirs = enchant_get_user_config_dirs ();
 	for (iter = user_config_dirs; iter != NULL && session == NULL; iter = iter->next)
 		{
-			session =_enchant_session_new (provider, iter->data, lang, TRUE);
+			session = _enchant_session_new (provider, iter->data, lang, TRUE);
 		}
 
 	if (session == NULL && user_config_dirs != NULL)
 		{
 			_enchant_ensure_dir_exists (user_config_dirs->data);
 	
-			session =_enchant_session_new (provider, user_config_dirs->data, lang, FALSE);
+			session = _enchant_session_new (provider, user_config_dirs->data, lang, FALSE);
 		}
 
 	g_slist_foreach (user_config_dirs, (GFunc)g_free, NULL);
 	g_slist_free (user_config_dirs);
-
 	
 	return session;
 }
@@ -708,7 +743,7 @@ enchant_session_contains (EnchantSession * session, const char * const word, siz
 	
 	if (g_hash_table_lookup (session->session_include, utf) ||
 		(enchant_pwl_check (session->personal, word, len) == 0 &&
-		 !enchant_pwl_check (session->exclude, word, len) == 0))
+		 (!enchant_pwl_check (session->exclude, word, len)) == 0))
 		result = TRUE;
 	
 	g_free (utf);
@@ -831,15 +866,12 @@ enchant_dict_check (EnchantDict * dict, const char *const word, ssize_t len)
  */
 static int
 enchant_dict_merge_suggestions(EnchantDict * dict, 
-								const char ** suggs, 
+								char ** suggs,
 								size_t n_suggs,
-								const char * const* const new_suggs,
+								char ** new_suggs,
 								size_t n_new_suggs)
 {
-	EnchantSession * session;
 	size_t i, j;
-
-	session = ((EnchantDictPrivateData*)dict->enchant_private_data)->session;
 
 	for(i = 0; i < n_new_suggs; i++)
 		{
@@ -875,7 +907,7 @@ enchant_dict_merge_suggestions(EnchantDict * dict,
 
 static char **
 enchant_dict_get_good_suggestions(EnchantDict * dict, 
-								const char * const* const suggs, 
+								char ** suggs,
 								size_t n_suggs,
 								size_t* out_n_filtered_suggs)
 {
@@ -891,6 +923,8 @@ enchant_dict_get_good_suggestions(EnchantDict * dict,
 	for(i = 0; i < n_suggs; i++)
 		{
 			size_t sugg_len = strlen(suggs[i]);
+
+			if (sugg_len == 0) continue;
 
 			if(g_utf8_validate(suggs[i], sugg_len, NULL) && 
 			   !enchant_session_exclude(session, suggs[i], sugg_len) )
@@ -1665,7 +1699,7 @@ enchant_provider_free (gpointer data, gpointer user_data)
  * enchant_broker_init
  *
  * Returns: A new broker object capable of requesting
- * dictionaries from
+ * dictionaries from providers.
  */
 ENCHANT_MODULE_EXPORT (EnchantBroker *) 
 enchant_broker_init (void)
@@ -1674,18 +1708,6 @@ enchant_broker_init (void)
 	
 	g_return_val_if_fail (g_module_supported (), NULL);
 
-#ifdef ENABLE_BINRELOC
-	{
-		static gboolean binreloc_initialized = FALSE;
-
-		if (!binreloc_initialized)
-			{
-				(void)gbr_init_lib (NULL);
-				binreloc_initialized = TRUE;
-			}
-	}
-#endif
-	
 	broker = g_new0 (EnchantBroker, 1);
 	
 	broker->dict_map = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -1920,6 +1942,8 @@ enchant_broker_list_dicts (EnchantBroker * broker,
 {
 	GSList *list;
 	GHashTable *tags;
+	GHashTableIter iter;
+	gpointer key, value;
 	
 	g_return_if_fail (broker);
 	g_return_if_fail (fn);
@@ -1931,35 +1955,59 @@ enchant_broker_list_dicts (EnchantBroker * broker,
 	for (list = broker->provider_list; list != NULL; list = g_slist_next (list))
 		{
 			EnchantProvider *provider;
-			GModule *module;
 
 			provider = (EnchantProvider *) list->data;
-			module = (GModule *) provider->enchant_private_data;
 
 			if (provider->list_dicts)
 				{
-					const char * tag, * name, * desc, * file;
 					size_t n_dicts, i;
-					char ** dicts;				       
+					char ** dicts;
 
 					dicts = (*provider->list_dicts) (provider, &n_dicts);
-					name = (*provider->identify) (provider);
-					desc = (*provider->describe) (provider);
-					file = g_module_name (module);
 
 					for (i = 0; i < n_dicts; i++)
 						{
+							const char * tag;
+
 							tag = dicts[i];
-							if(enchant_is_valid_dictionary_tag(tag) &&
-							   !g_hash_table_lookup (tags, tag))
-								{
-									g_hash_table_insert (tags, g_strdup (tag), GINT_TO_POINTER(TRUE));
-									(*fn) (tag, name, desc, file, user_data);
+							if (enchant_is_valid_dictionary_tag (tag)) {
+								gpointer ptr;
+								GSList *providers;
+								gint this_priority;
+
+								providers = enchant_get_ordered_providers (broker, tag);
+								this_priority = g_slist_index (providers, provider);
+								if (this_priority != -1) {
+									gint min_priority;
+
+									min_priority = this_priority + 1;
+									ptr = g_hash_table_lookup (tags, tag);
+									if (ptr != NULL)
+										min_priority = g_slist_index (providers, ptr);
+									if (this_priority < min_priority)
+										g_hash_table_insert (tags, g_strdup (tag), provider);
 								}
+							}
 						}
 
 					enchant_provider_free_string_list (provider, dicts);
 				}	
+		}
+
+	g_hash_table_iter_init (&iter, tags);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+		{
+			const char * tag, * name, * desc, * file;
+			EnchantProvider * provider;
+			GModule *module;
+
+			tag = (const char *) key;
+			provider = (EnchantProvider *) value;
+			module = (GModule *) provider->enchant_private_data;
+			name = (*provider->identify) (provider);
+			desc = (*provider->describe) (provider);
+			file = g_module_name (module);
+			(*fn) (tag, name, desc, file, user_data);
 		}
 
 	g_hash_table_destroy (tags);
@@ -2264,12 +2312,13 @@ enchant_get_prefix_dir(void)
 	}
 #endif
 
-#if defined(ENABLE_BINRELOC)
 	if (!prefix) {
-		/* Use standard binreloc PREFIX macro */
-		prefix = gbr_find_prefix(NULL);
+		/* Use ENCHANT_PREFIX_DIR env var */
+		const gchar* env = g_getenv("ENCHANT_PREFIX_DIR");
+		if (env) {
+			prefix = g_filename_to_utf8(env, -1, NULL, NULL, NULL);
+		}
 	}
-#endif
 
 #if defined(ENCHANT_PREFIX_DIR)
 	if (!prefix) {
@@ -2305,30 +2354,12 @@ ENCHANT_MODULE_EXPORT (GSList *)
 enchant_get_dirs_from_param (EnchantBroker * broker, const char * const param_name)
 {
 	const char *param_value;
-	char **tokens;
-	GSList *dirs = NULL;
 
 	param_value = enchant_broker_get_param (broker, param_name);
 	if (param_value == NULL)
 		return NULL;
 
-#ifdef _WIN32
-	tokens = g_strsplit (param_value, ";", 0);
-#else
-	tokens = g_strsplit (param_value, ":", 0);
-#endif
-	if (tokens != NULL) {
-		int i;
-		for (i = 0; tokens[i]; i++) 
-			{
-				char *token = g_strstrip(tokens[i]);
-				dirs = g_slist_append (dirs, g_strdup (token));
-			}
-		
-		g_strfreev (tokens);		
-	}
-
-	return dirs;
+	return _enchant_get_dirs_from_string (param_value);
 }
 
 ENCHANT_MODULE_EXPORT(char *)

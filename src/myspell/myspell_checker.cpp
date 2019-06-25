@@ -44,10 +44,12 @@
 
 /* built against hunspell 1.2.2 on 2008-04-12 */
 
-#ifdef HUNSPELL_STATIC
-#include "hunspell.hxx"
-#else
 #include <hunspell/hunspell.hxx>
+
+/* Some versions of hunspell (1.4.x) don't have this defined. */
+/* This is the defined value at that point */
+#ifndef MAXWORDLEN
+#define MAXWORDLEN 176
 #endif
 
 ENCHANT_PLUGIN_DECLARE("Myspell")
@@ -296,6 +298,26 @@ myspell_checker_get_dictionary_dirs (EnchantBroker * broker)
 
 		g_slist_foreach (config_dirs, (GFunc)g_free, NULL);
 		g_slist_free (config_dirs);
+	}
+
+	{
+		char* hun_dir;
+#if defined(_WIN32)
+		WCHAR wsz[MAX_PATH];
+		DWORD rv = GetEnvironmentVariableW(L"DICPATH", wsz, MAX_PATH);
+		if (rv >0 && rv <= MAX_PATH) {
+			hun_dir = g_utf16_to_utf8((gunichar2*)wsz,-1,NULL,NULL,NULL);
+		} else hun_dir = NULL;
+#else
+		hun_dir = getenv("DICPATH");
+#endif
+		if (hun_dir)
+		{
+			dirs = g_slist_append(dirs, g_strdup(hun_dir));
+#if defined(_WIN32)
+			g_free(hun_dir);
+#endif
+		}
 	}
 
 	return dirs;

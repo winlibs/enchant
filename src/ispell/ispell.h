@@ -5,7 +5,7 @@
 #include <sys/types.h>
 
 /*
- * $Id: ispell.h 28601 2010-01-11 12:40:00Z dom $
+ * $Id$
  */
 
 /*
@@ -297,7 +297,7 @@ extern int		gnMaskBits;
 ** character counts as two!
 */
 #ifndef MAXSTRINGCHARS
-#define MAXSTRINGCHARS 128
+#define MAXSTRINGCHARS 512
 #endif /* MAXSTRINGCHARS */
 
 /*

@@ -211,7 +211,7 @@
 void ISpellChecker::chk_aff (ichar_t *word, ichar_t *ucword, 
 			  int len, int ignoreflagbits, int allhits, int pfxopts, int sfxopts)
 {
-    register ichar_t *	cp;		/* Pointer to char to index on */
+    ichar_t *		cp;		/* Pointer to char to index on */
     struct flagptr *	ind;		/* Flag index table to test */
 
     pfx_list_chk (word, ucword, len, pfxopts, sfxopts, &m_pflagindex[0],
@@ -261,13 +261,11 @@ void ISpellChecker::pfx_list_chk (ichar_t *word, ichar_t *ucword, int len, int o
 					int sfxopts, struct flagptr * ind, int ignoreflagbits, int allhits)
 {
     int			cond;		/* Condition number */
-    register ichar_t *	cp;		/* Pointer into end of ucword */
+    ichar_t *		cp;		/* Pointer into end of ucword */
     struct dent *	dent;		/* Dictionary entry we found */
     int			entcount;	/* Number of entries to process */
-    register struct flagent *
-			flent;		/* Current table entry */
-    int			preadd;		/* Length added to tword2 as prefix */
-    register int	tlen;		/* Length of tword */
+    struct flagent *	flent;		/* Current table entry */
+    int			tlen;		/* Length of tword */
     ichar_t		tword[INPUTWORDLEN + 4 * MAXAFFIXLEN + 4]; /* Tmp cpy */
     ichar_t		tword2[sizeof tword]; /* 2nd copy for ins_root_cap */
 
@@ -324,7 +322,6 @@ void ISpellChecker::pfx_list_chk (ichar_t *word, ichar_t *ucword, int len, int o
 							cp += flent->affl;
 							*cp++ = '+';
 						}
-						preadd = cp - tword2;
 						icharcpy (cp, tword);
 						cp += tlen;
 						if (flent->stripl)
@@ -382,7 +379,7 @@ ISpellChecker::chk_suf (ichar_t *word, ichar_t *ucword,
 					int len, int optflags, struct flagent *pfxent, 
 					int ignoreflagbits, int allhits)
 {
-    register ichar_t *	cp;		/* Pointer to char to index on */
+    ichar_t *		cp;		/* Pointer to char to index on */
     struct flagptr *	ind;		/* Flag index table to test */
 
     suf_list_chk (word, ucword, len, &m_sflagindex[0], optflags, pfxent,
@@ -426,14 +423,12 @@ void ISpellChecker::suf_list_chk (ichar_t *word, ichar_t *ucword,
 						  int len, struct flagptr *ind, int optflags, 
 						  struct flagent *pfxent, int ignoreflagbits, int allhits)
 {
-    register ichar_t *	cp;		/* Pointer into end of ucword */
+    ichar_t *		cp;		/* Pointer into end of ucword */
     int			cond;		/* Condition number */
     struct dent *	dent;		/* Dictionary entry we found */
     int			entcount;	/* Number of entries to process */
-    register struct flagent *
-			flent;		/* Current table entry */
-    int			preadd;		/* Length added to tword2 as prefix */
-    register int	tlen;		/* Length of tword */
+    struct flagent *	flent;		/* Current table entry */
+    int			tlen;		/* Length of tword */
     ichar_t		tword[INPUTWORDLEN + 4 * MAXAFFIXLEN + 4]; /* Tmp cpy */
     ichar_t		tword2[sizeof tword]; /* 2nd copy for ins_root_cap */
 
@@ -499,7 +494,6 @@ void ISpellChecker::suf_list_chk (ichar_t *word, ichar_t *ucword,
 							cp += pfxent->affl;
 							*cp++ = '+';
 						}
-						preadd = cp - tword2;
 						icharcpy (cp, tword);
 						cp += tlen;
 						if ((optflags & FF_CROSSPRODUCT)
@@ -567,8 +561,7 @@ int ISpellChecker::expand_pre (char *croot, ichar_t *rootword, MASKTYPE mask[],
 {
     int				entcount;	/* No. of entries to process */
     int				explength;	/* Length of expansions */
-    register struct flagent *
-				flent;		/* Current table entry */
+    struct flagent *		flent;		/* Current table entry */
 
     for (flent = m_pflaglist, entcount = m_numpflags, explength = 0;
       entcount > 0;
@@ -598,7 +591,7 @@ int ISpellChecker::pr_pre_expansion ( char *croot, ichar_t *rootword,
 							char *extra)
 {
     int				cond;		/* Current condition number */
-    register ichar_t *		nextc;		/* Next case choice */
+    ichar_t *			nextc;		/* Next case choice */
     int				tlen;		/* Length of tword */
     ichar_t			tword[INPUTWORDLEN + MAXAFFIXLEN]; /* Temp */
 
@@ -696,8 +689,7 @@ int ISpellChecker::expand_suf (char *croot, ichar_t *rootword, MASKTYPE mask[],
 {
     int				entcount;	/* No. of entries to process */
     int				explength;	/* Length of expansions */
-    register struct flagent *
-				flent;		/* Current table entry */
+    struct flagent *		flent;		/* Current table entry */
 
     for (flent = m_sflaglist, entcount = m_numsflags, explength = 0;
       entcount > 0;
@@ -729,7 +721,7 @@ int ISpellChecker::pr_suf_expansion (char *croot, ichar_t *rootword,
 							struct flagent *flent, int option, char *extra)
 {
     int				cond;		/* Current condition number */
-    register ichar_t *		nextc;		/* Next case choice */
+    ichar_t *			nextc;		/* Next case choice */
     int				tlen;		/* Length of tword */
     ichar_t			tword[INPUTWORDLEN + MAXAFFIXLEN]; /* Temp */
 

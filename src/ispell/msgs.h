@@ -1,6 +1,6 @@
 /* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * $Id: msgs.h 28601 2010-01-11 12:40:00Z dom $
+ * $Id$
  *
  * Copyright 1992, 1993, Geoff Kuenning, Granada Hills, CA
  * All rights reserved.
