@@ -176,18 +176,14 @@
     <ClCompile Include="..\src\myspell\affentry.cxx" />
     <ClCompile Include="..\src\myspell\affixmgr.cxx" />
     <ClCompile Include="..\src\myspell\csutil.cxx" />
-    <ClCompile Include="..\src\myspell\dictmgr.cxx" />
     <ClCompile Include="..\src\myspell\filemgr.cxx" />
     <ClCompile Include="..\src\myspell\hashmgr.cxx" />
     <ClCompile Include="..\src\myspell\hunspell.cxx" />
     <ClCompile Include="..\src\myspell\hunzip.cxx" />
     <ClCompile Include="..\src\myspell\myspell_checker.cpp" />
     <ClCompile Include="..\src\myspell\phonet.cxx" />
+    <ClCompile Include="..\src\myspell\replist.cxx" />
     <ClCompile Include="..\src\myspell\suggestmgr.cxx" />
-    <ClCompile Include="..\src\myspell\utf_info.cxx">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\myspell\affentry.hxx" />
@@ -195,7 +191,6 @@
     <ClInclude Include="..\src\myspell\atypes.hxx" />
     <ClInclude Include="..\src\myspell\baseaffix.hxx" />
     <ClInclude Include="..\src\myspell\csutil.hxx" />
-    <ClInclude Include="..\src\myspell\dictmgr.hxx" />
     <ClInclude Include="..\src\myspell\filemgr.hxx" />
     <ClInclude Include="..\src\myspell\hashmgr.hxx" />
     <ClInclude Include="..\src\myspell\htypes.hxx" />
@@ -204,22 +199,9 @@
     <ClInclude Include="..\src\myspell\hunzip.hxx" />
     <ClInclude Include="..\src\myspell\langnum.hxx" />
     <ClInclude Include="..\src\myspell\phonet.hxx" />
+    <ClInclude Include="..\src\myspell\replist.hxx" />
     <ClInclude Include="..\src\myspell\suggestmgr.hxx" />
     <ClInclude Include="..\src\myspell\w_char.hxx" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\src\myspell\license.hunspell">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\src\myspell\license.myspell">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\src\myspell\license.readme">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libenchant.vcxproj">

@@ -190,12 +190,6 @@
     <ClInclude Include="..\src\ispell\sp_spell.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\src\ispell\README">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="libenchant.vcxproj">
       <Project>{e0db6274-f44c-48e6-ae30-c00d59864569}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

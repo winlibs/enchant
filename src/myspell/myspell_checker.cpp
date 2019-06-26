@@ -44,7 +44,11 @@
 
 /* built against hunspell 1.2.2 on 2008-04-12 */
 
+#ifdef HUNSPELL_STATIC
+#include "hunspell.hxx"
+#else
 #include <hunspell/hunspell.hxx>
+#endif
 
 /* Some versions of hunspell (1.4.x) don't have this defined. */
 /* This is the defined value at that point */
