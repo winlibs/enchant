@@ -1,4 +1,3 @@
-/* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* enchant
  * Copyright (C) 2003 Dom Lachowicz
  *
@@ -14,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
  * In addition, as a special exception, Dom Lachowicz
@@ -47,10 +46,9 @@ void enchant_pwl_add(EnchantPWL * me, const char *const word, size_t len);
 void enchant_pwl_remove(EnchantPWL * me, const char *const word, size_t len);
 int enchant_pwl_check(EnchantPWL * me,const char *const word, size_t len);
 /*gives the best set of suggestions from pwl that are at least as good as the given suggs*/
-char** enchant_pwl_suggest(EnchantPWL *me,const char *const word,
-			   size_t len, const char*const*const suggs, size_t* out_n_suggs);
+char** enchant_pwl_suggest(EnchantPWL *me, const char *const word,
+			   size_t len, char ** suggs, size_t* out_n_suggs);
 void enchant_pwl_free(EnchantPWL* me);
-void enchant_pwl_free_string_list(EnchantPWL* me, char** string_list);
 
 #ifdef __cplusplus
 }

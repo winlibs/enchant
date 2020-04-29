@@ -1,3 +1,148 @@
+2.2.8 (February 27, 2020)
+-------------------------
+
+Add a provider back-end for Nuspell (thanks, Sander van Geloven). Nuspell is
+a new spell-checker whose development has been supported by the Mozilla
+foundation. It is backwards-compatible with Hunspell and Myspell
+dictionaries, while supporting a wider range of language peculiarities,
+improved suggestions, and easier maintainability of the code-base.
+
+Doxygen documentation generation is now supported for Enchant (thanks,
+Sander van Geloven).
+
+The command-line parsing of the “enchant” program has been made more
+friendly and reliable. The -L flag (show line numbers), which had not been
+working for some time, has been fixed.
+
+A buffer overflow in personal wordlist handling has been fixed.
+
+Minor improvements were made to the tests (thanks, Sander van Geloven).
+
+
+2.2.7 (September 9, 2019)
+-------------------------
+
+Fix some memory leaks in the hunspell and aspell providers, thanks to an
+improvement to the build system to use ASAN for the tests.
+
+
+2.2.6 (September 5, 2019)
+-------------------------
+
+Treat PWL as text, not binary.
+
+
+2.2.5 (June 30, 2019)
+---------------------
+
+Fix a memory leak in the hunspell provider.
+
+
+2.2.4 (June 17, 2019)
+---------------------
+
+Fix a bug in the enchant program, where words ending in non-ASCII characters
+were truncated during tokenization.
+
+
+2.2.3 (February 4, 2018)
+------------------------
+
+Fix the previous release’s fix. Sigh.
+
+
+2.2.2 (February 3, 2018)
+------------------------
+
+Fix a bug in the build system where the test harness would try to delete
+files under root, typically the system libraries.
+
+
+2.2.1 (January 3, 2018)
+-----------------------
+
+This release fixes a crash on invalid input with the hspell backend, removes
+some bashisms from the build system, updates the Free Software Foundation’s
+street address, and stops running some tests that fail on recent macOS
+(pending a fix).
+
+
+2.2.0 (December 11, 2017)
+-------------------------
+
+This release improves support for parallel installation with other major
+versions of Enchant (specifically for man pages), fixes relocation support,
+which only partly worked (thanks to Sandro Mani), and makes minor
+documentation improvements and fixes a potential crash in the hspell
+back-end.
+
+
+2.1.3 (November 26, 2017)
+--------------------------
+
+This release adds support for parallel installation with other major
+versions of Enchant, and fixes a crash in the Voikko provider when it has no
+supported languages.
+
+
+2.1.2 (September 28, 2017)
+--------------------------
+
+This release adds support for languages other than Finnish to the voikko
+provider, from Børre Gaup.
+
+
+2.1.1 (September 8, 2017)
+-------------------------
+
+This release changes no code, but makes the soname of libenchant match the
+version number more obviously, as well as changing the way it is calculated
+to better match libtool’s versioning rules.
+
+
+2.1.0 (August 7, 2017)
+----------------------
+
+This is a minor feature release. It adds the -word-chars flag to
+enchant-lsmod, for a convenient way for other programs to get the extra word
+characters for a particular dictionary.
+
+A man page for enchant-lsmod is also now provided.
+
+A little more code cleanup has been done, in particular by upstreaming
+gnulib patches.
+
+
+2.0.0 (August 4, 2017)
+----------------------
+
+The major version number has been incremented owing to API/ABI changes, but
+in practice upgrading from 1.6.x should be easy.
+
+Previously-deprecated APIs have been removed.
+
+The little-used enchant_broker_get/set_param calls have been removed.
+
+Some trivial API changes have been made to fix otherwise-unavoidable
+compilation warnings both in libenchant and in application code. This is
+strictly an ABI change (although the ABI may not actually have changed,
+depending on the platform).
+
+The provider API has been changed slightly: enchant_get_user_language is now
+a documented public API (before it was marked private, but it has in fact
+been exported for some years). enchant_get_user_config_dirs is now
+enchant_get_user_config_dir, and returns only a single directory.
+
+The plethora of configuration options previously available has been
+rationalised and documented. In particular, support for relocation (so that
+Enchant, or an application of which it is part, can be installed anywhere in
+a filing system) has been rewritten and documented (see INSTALL).
+
+The Myspell backend has been renamed to Hunspell to match the upstream
+project. Users with their own enchant.ordering files will need to change
+“myspell” to “hunspell”.
+
+
 1.6.1 (February 6, 2017)
 ------------------------
 

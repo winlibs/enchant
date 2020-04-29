@@ -1,37 +1,50 @@
-SUBDIRS=. aspell ispell uspell myspell hspell applespell voikko zemberek
+AM_CPPFLAGS = -I$(top_srcdir) $(ISYSTEM)$(top_builddir)/lib $(ISYSTEM)$(top_srcdir)/lib $(ENCHANT_CFLAGS) $(WARN_CFLAGS)
 
-AM_CPPFLAGS=-I$(top_srcdir) $(ENCHANT_CFLAGS) $(CC_WARN_CFLAGS) -DENCHANT_GLOBAL_MODULE_DIR=\"$(libdir)/enchant\" -DENCHANT_GLOBAL_ORDERING=\"$(datadir)/enchant\" -D_ENCHANT_BUILD=1 -DENCHANT_VERSION_STRING=\"@ENCHANT_MAJOR_VERSION@.@ENCHANT_MINOR_VERSION@.@ENCHANT_MICRO_VERSION@\"
+lib_LTLIBRARIES = libenchant-@ENCHANT_MAJOR_VERSION@.la
 
-lib_LTLIBRARIES = libenchant.la
+libenchant_@ENCHANT_MAJOR_VERSION@_la_CPPFLAGS = $(AM_CPPFLAGS) -D_ENCHANT_BUILD=1 -DENCHANT_VERSION_STRING=\"@ENCHANT_MAJOR_VERSION@.@ENCHANT_MINOR_VERSION@.@ENCHANT_MICRO_VERSION@\" -DENCHANT_MAJOR_VERSION=\"@ENCHANT_MAJOR_VERSION@\"
+libenchant_@ENCHANT_MAJOR_VERSION@_la_LIBADD = $(top_builddir)/lib/libgnu.la $(ENCHANT_LIBS) $(LTLIBOBJS)
 
-libenchant_la_LIBADD= $(ENCHANT_LIBS) @ENCHANT_WIN32_RESOURCE@
-
-libenchant_la_LDFLAGS = -no-undefined -export-symbols-regex '^enchant_.*'
+libenchant_@ENCHANT_MAJOR_VERSION@_la_LDFLAGS = -no-undefined -export-symbols-regex '^enchant_.*'
 if OS_WIN32
-libenchant_la_LDFLAGS += -avoid-version
+libenchant_@ENCHANT_MAJOR_VERSION@_la_LDFLAGS += -avoid-version
 else
-libenchant_la_LDFLAGS += -version-info $(VERSION_INFO)
+libenchant_@ENCHANT_MAJOR_VERSION@_la_LDFLAGS += -version-info $(VERSION_INFO)
 endif
 
-libenchant_la_DEPENDENCIES = @ENCHANT_WIN32_RESOURCE@
-libenchant_la_SOURCES = enchant.c pwl.c enchant.h pwl.h
+libenchant_@ENCHANT_MAJOR_VERSION@_la_SOURCES = lib.c pwl.c enchant.h pwl.h
+if OS_WIN32
+libenchant_@ENCHANT_MAJOR_VERSION@_la_SOURCES += libenchant.rc
+endif
 
-libenchant_includedir = $(includedir)/enchant
+libenchant_includedir = $(pkgincludedir)-@ENCHANT_MAJOR_VERSION@
 libenchant_include_HEADERS = enchant.h enchant-provider.h enchant++.h
 
-if WITH_APPLESPELL
-AM_CPPFLAGS += @APPLESPELL_CFLAGS@
-libenchant_la_LIBADD += @APPLESPELL_LIBS@
-libenchant_la_LDFLAGS += @APPLESPELL_LDFLAGS@
-libenchant_la_SOURCES += enchant_cocoa.m enchant_cocoa.h
-libenchant_include_HEADERS += enchant_cocoa.h
-endif
+pkgdata_DATA = enchant.ordering
 
-EXTRA_DIST=enchant.i
+dist_man_MANS = enchant-@ENCHANT_MAJOR_VERSION@.1 enchant-lsmod-@ENCHANT_MAJOR_VERSION@.1
 
-if OS_WIN32
+edit = sed \
+	-e 's|@datadir[@]|$(datadir)|g'
 
-@ENCHANT_WIN32_RESOURCE@ : libenchant.rc
-	$(top_srcdir)/lt-compile-resource libenchant.rc @ENCHANT_WIN32_RESOURCE@
-endif
+DISTCLEANFILES = $(dist_man_MANS)
 
+enchant-@ENCHANT_MAJOR_VERSION@.1: $(builddir)/enchant.1 Makefile.am $(top_builddir)/config.status
+	rm -f $@ $@.tmp
+	$(edit) $(abs_builddir)/enchant.1 >$@.tmp
+	mv $@.tmp $@
+
+enchant-lsmod-@ENCHANT_MAJOR_VERSION@.1: $(builddir)/enchant-lsmod.1 Makefile.am $(top_builddir)/config.status
+	rm -f $@ $@.tmp
+	$(edit) $(abs_builddir)/enchant-lsmod.1 >$@.tmp
+	mv $@.tmp $@
+
+LDADD = libenchant-@ENCHANT_MAJOR_VERSION@.la $(ENCHANT_LIBS) $(top_builddir)/lib/libgnu.la
+bin_PROGRAMS = enchant-@ENCHANT_MAJOR_VERSION@ enchant-lsmod-@ENCHANT_MAJOR_VERSION@
+enchant_@ENCHANT_MAJOR_VERSION@_SOURCES = enchant.c
+enchant_lsmod_@ENCHANT_MAJOR_VERSION@_SOURCES = enchant-lsmod.c
+
+EXTRA_DIST = $(pkgdata_DATA) enchant.1.in enchant-lsmod.1.in
+
+.rc.lo:
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --tag=RC --mode=compile $(RC) $(RCFLAGS) $< -o $@

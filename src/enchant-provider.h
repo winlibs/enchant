@@ -1,4 +1,3 @@
-/* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* enchant
  * Copyright (C) 2003 Dom Lachowicz
  *
@@ -14,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
  * In addition, as a special exception, Dom Lachowicz
@@ -33,49 +32,71 @@
 
 #include <enchant.h>
 #include <glib.h>
-#include <stdio.h>
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* private */ 
-ENCHANT_MODULE_EXPORT(char *) 
-		 enchant_get_user_language(void);
-
-#ifdef _WIN32
-#define ENCHANT_PLUGIN_DECLARE(name) static HANDLE s_hModule = (HANDLE)(NULL); BOOL APIENTRY DllMain( HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved ) { s_hModule = hModule; return TRUE; } 
-#else
-#define ENCHANT_PLUGIN_DECLARE(name)
-#endif
-	
 typedef struct str_enchant_provider EnchantProvider;
 
-ENCHANT_MODULE_EXPORT (GSList *)
-	enchant_get_user_config_dirs (void);
+/**
+ * enchant_get_user_language
+ *
+ * Returns a char string giving the current language.
+ * Defaults to "en" if no language or locale can be found, or
+ * locale is C.
+ *
+ * The returned string should be free'd with free.
+ */
+char *enchant_get_user_language(void);
 
-ENCHANT_MODULE_EXPORT (char *)
-	enchant_get_registry_value (const char * const prefix, const char * const key);
+char *enchant_get_user_config_dir (void);
+GSList *enchant_get_conf_dirs (void);
 
-ENCHANT_MODULE_EXPORT(char *)
-	enchant_get_prefix_dir(void);
+/**
+ * enchant_get_prefix_dir
+ *
+ * Returns a string giving the location of the base directory
+ * of the enchant installation.  This corresponds roughly to
+ * the --prefix option given to ./configure when enchant is
+ * compiled, except it is determined at runtime based on the location
+ * of the enchant library.
+ *
+ * Returns: the prefix dir. Must be free'd.
+ *
+ */
+char *enchant_get_prefix_dir(void);
 
-ENCHANT_MODULE_EXPORT(void)
-	enchant_dict_set_error (EnchantDict * dict, const char * const err);
+/**
+ * enchant_relocate
+ *
+ * Returns a string giving the relocated path according to the location of the
+ * base directory of the enchant installation.
+ *
+ * Returns: the relocated path. Must be free'd.
+ */
+char *enchant_relocate (const char *path);
 
-ENCHANT_MODULE_EXPORT(void)
-	enchant_provider_set_error (EnchantProvider * provider, const char * const err);
+/**
+ * enchant_dict_set_error
+ * @dict: A non-null dictionary
+ * @err: A non-null error message
+ *
+ * Sets the current runtime error to @err. This API is private to the
+ * providers.
+ */
+void enchant_dict_set_error (EnchantDict * dict, const char * const err);
 
-ENCHANT_MODULE_EXPORT(FILE *)
-	enchant_fopen (const gchar *filename, const gchar *mode);
-
-ENCHANT_MODULE_EXPORT (GSList *)
-	enchant_get_dirs_from_param (EnchantBroker * broker, const char * const param_name);
+/**
+ * enchant_provider_set_error
+ * @provider: A non-null provider
+ * @err: A non-null error message
+ *
+ * Sets the current runtime error to @err. This API is private to
+ * the providers.
+ */
+void enchant_provider_set_error (EnchantProvider * provider, const char * const err);
 
 struct str_enchant_dict
 {
@@ -101,9 +122,12 @@ struct str_enchant_dict
 				   const char *const cor, size_t cor_len);
 	
 	void (*add_to_exclude) (struct str_enchant_dict * me,
-				 const char *const word, size_t len);
-	
-	void * _reserved[5];
+				const char *const word, size_t len);
+
+	const char * (*get_extra_word_characters) (struct str_enchant_dict * me);
+
+	int (*is_word_character) (struct str_enchant_dict * me,
+				  uint32_t uc_in, size_t n);
 };
 	
 struct str_enchant_provider
@@ -115,7 +139,7 @@ struct str_enchant_provider
 	void (*dispose) (struct str_enchant_provider * me);
 	
 	EnchantDict *(*request_dict) (struct str_enchant_provider * me,
-					  const char *const tag);
+				      const char *const tag);
 	
 	void (*dispose_dict) (struct str_enchant_provider * me,
 				  EnchantDict * dict);
@@ -128,14 +152,8 @@ struct str_enchant_provider
 	/* returns utf8*/
 	const  char * (*describe) (struct str_enchant_provider * me);
 
-	/* frees string lists returned by list_dicts and dict->suggest */
-	void (*free_string_list) (struct str_enchant_provider * me,
-				  char **str_list);
-
 	char ** (*list_dicts) (struct str_enchant_provider * me,
-							   size_t * out_n_dicts);
-
-	void * _reserved[5];
+			       size_t * out_n_dicts);
 };
 
 #ifdef __cplusplus
