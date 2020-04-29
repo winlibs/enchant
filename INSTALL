@@ -1,3 +1,52 @@
+Building and installing libenchant
+**********************************
+
+For standard GNU autotools installation instructions, see below.  There
+follow some enchant-specific notes.
+
+The usual GNU autotools package instructions apply, except that Enchant must
+be built with --enable-relocatable for the tests to run successfully.
+
+Note that for Enchant to find system-installed dictionaries, you may need
+the relevant --with-foo-dir option (see ./configure --help).
+
+
+Building from git
+=================
+
+See HACKING.
+
+
+Parallel installation
+=====================
+
+Enchant mostly installs in versioned directories, so that different major
+versions can be installed in parallel.  The one exception is the data files
+(under pkgdatadir), as these are compatible between different major
+versions.  To change e.g. /usr/share/enchant to /usr/share/enchant-2, set
+pkgdatadir when running make, e.g.:
+
+make pkgdatadir=/usr/share/enchant-2
+
+
+Relocation
+==========
+
+If Enchant is installed in a fixed location, and on Windows and Linux
+systems, no further configuration should be needed to make it relocatable;
+that is, work when copied from its original installation directory to
+another location.
+
+Otherwise, and in code intended to be portable to other systems, your code
+should call enchant_set_prefix_dir (see enchant.h) before any other Enchant
+function.
+
+For more details of how the relocation support works, including how you can
+use it in your own program, see doc/relocatable.texi and
+gnulib/doc/relocatable-maint.texi.
+
+
+
 Installation Instructions
 *************************
 

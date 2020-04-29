@@ -1,24 +1,44 @@
 ACLOCAL_AMFLAGS = -I m4
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-relocatable
 
-SUBDIRS=src tests unittests doc data
+SUBDIRS = lib src providers tests
 
+# Note that the template file is called library.pc.in, but generates a
+# versioned .pc file using some magic in AC_CONFIG_FILES.
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = enchant.pc
+pkgconfig_DATA = enchant-$(ENCHANT_MAJOR_VERSION).pc
 
+DISTCLEANFILES = $(pkgconfig_DATA)
 EXTRA_DIST =		\
-	autogen.sh	\
 	enchant.pc.in	\
-	enchant-uninstalled.pc.in \
-	enchant.spec.in	\
-	enchant.spec	\
-	lt-compile-resource \
-	compile-resource \
 	README 		\
-	TODO 		\
 	HACKING 	\
 	NEWS 		\
-	BUGS 		\
 	ChangeLog 	\
-	MAINTAINERS	\
 	AUTHORS 	\
-	COPYING.LIB
+	COPYING.LIB	\
+	m4/gnulib-cache.m4
+
+ALL_SOURCE_FILES = \
+	bootstrap.conf \
+	configure.ac \
+	Makefile.am \
+	src/Makefile.am \
+	src/*.[chi] \
+	providers/Makefile.am \
+	providers/*.[ch] \
+	providers/*.cpp \
+	providers/*.mm
+
+loc:
+	cloc --force-lang="Bourne Shell",conf $(ALL_SOURCE_FILES)
+
+release: distcheck
+	git diff --exit-code && \
+	git tag -a -m "Release tag" "v$(VERSION)" && \
+	git push && git push --tags && \
+	woger github \
+		github_user=AbiWord \
+		package=$(PACKAGE) \
+		version=$(VERSION) \
+		dist_type=tar.gz

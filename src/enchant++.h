@@ -1,4 +1,3 @@
-/* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* enchant
  * Copyright (C) 2003 Dom Lachowicz
  *
@@ -14,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  *
  * In addition, as a special exception, Dom Lachowicz
@@ -38,6 +37,10 @@
 
 namespace enchant 
 {
+	void set_prefix_dir (const std::string prefix) {
+		enchant_set_prefix_dir (prefix.c_str ());
+	}
+
 	class Broker;
 
 	class Exception : public std::exception
@@ -49,16 +52,14 @@ namespace enchant
 					m_ex = ex;
 			}
 
-			virtual ~Exception () throw() {
+			virtual ~Exception () noexcept {
 			}
 			
-			virtual const char * what () throw() {
+			virtual const char * what () const noexcept {
 				return m_ex.c_str();
 			}
 
 		private:
-			Exception ();
-
 			std::string m_ex;
 		};
 
@@ -99,6 +100,8 @@ namespace enchant
 							      utf8word.size(), &n_suggs);
 				
 				if (suggs && n_suggs) {
+					out_suggestions.reserve(n_suggs);
+
 					for (size_t i = 0; i < n_suggs; i++) {
 						out_suggestions.push_back (suggs[i]);
 					}
@@ -166,15 +169,6 @@ namespace enchant
 				return m_provider_file;
 			}
 
-			/* deprecated */
-			void add_to_personal (const std::string & utf8word) {
-				return add (utf8word);
-			}
-
-			/* deprecated */
-			void add_to_pwl (const std::string & utf8word) {
-				return add (utf8word);
-			}
 		private:
 
 			// space reserved for API/ABI expansion
@@ -217,10 +211,15 @@ namespace enchant
 			
 		public:
 			
-			static Broker * instance () {
-				return &m_instance;
+			Broker ()
+				: m_broker (enchant_broker_init ())
+				{
+				}
+
+			~Broker () {
+				enchant_broker_free (m_broker);
 			}
-						
+
 			Dict * request_dict (const std::string & lang) {
 				EnchantDict * dict = enchant_broker_request_dict (m_broker, lang.c_str());
 				
@@ -263,30 +262,12 @@ namespace enchant
 
 		private:
 
-			// space reserved for API/ABI expansion
-			void * _private[5];
-			
-			Broker ()
-				: m_broker (enchant_broker_init ())
-				{
-				}
-			
-			~Broker () {
-				enchant_broker_free (m_broker);
-			}
-			
 			// not implemented
 			Broker (const Broker & rhs);
 			Broker& operator=(const Broker & rhs);
 			
-			static Broker m_instance;
-			
 			EnchantBroker * m_broker;
 		}; // class enchant::Broker
-	
-	// define the broker instance
-	Broker Broker::m_instance;
-	
 } // enchant namespace
 
 #endif /* ENCHANT_PLUS_PLUS_H */
