@@ -178,12 +178,18 @@ static char *
 enchant_normalize_dictionary_tag (const char * const dict_tag)
 {
 	char * new_tag = g_strstrip (strdup (dict_tag));
+	char *tmp;
 
 	/* strip off en_GB@euro */
-	*strchrnul (new_tag, '@') = '\0';
+	if ((tmp = strchr (new_tag, '@'))) {
+		*tmp = '\0';
+	}
+
 
 	/* strip off en_GB.UTF-8 */
-	*strchrnul (new_tag, '.') = '\0';
+	if ((tmp = strchr (new_tag, '.'))) {
+		*tmp = '\0';
+	}
 
 	/* turn en-GB into en_GB */
 	char * needle;
@@ -191,7 +197,9 @@ enchant_normalize_dictionary_tag (const char * const dict_tag)
 		*needle = '_';
 
 	/* everything before first '_' is converted to lower case */
-	needle = strchrnul (new_tag, '_');
+	if (!(needle = strchr (new_tag, '_'))) {
+		return new_tag;
+	}
 	for (gchar *it = new_tag; it != needle; ++it)
 		*it = g_ascii_tolower (*it);
 	/* everything after first '_' is converted to upper case */

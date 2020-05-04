@@ -58,7 +58,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <fcntl.h>
 
 #include <glib.h>
@@ -181,8 +180,8 @@ static void enchant_trie_matcher_poppath(EnchantTrieMatcher* matcher,int num);
 
 static int edit_dist(const char* word1, const char* word2);
 
-#define enchant_lock_file(f) flock (fileno (f), LOCK_EX)
-#define enchant_unlock_file(f) flock (fileno (f), LOCK_UN)
+#define enchant_lock_file(f)
+#define enchant_unlock_file(f)
 
 /**
  * enchant_pwl_init

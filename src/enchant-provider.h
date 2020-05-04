@@ -51,6 +51,7 @@ typedef struct str_enchant_provider EnchantProvider;
  */
 char *enchant_get_user_language(void);
 
+ENCHANT_MODULE_EXPORT
 char *enchant_get_user_config_dir (void);
 GSList *enchant_get_conf_dirs (void);
 
@@ -66,6 +67,7 @@ GSList *enchant_get_conf_dirs (void);
  * Returns: the prefix dir. Must be free'd.
  *
  */
+ENCHANT_MODULE_EXPORT
 char *enchant_get_prefix_dir(void);
 
 /**
