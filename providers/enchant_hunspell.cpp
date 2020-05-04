@@ -498,6 +498,7 @@ hunspell_provider_describe (EnchantProvider * me _GL_UNUSED_PARAMETER)
 	return "Hunspell Provider";
 }
 
+ENCHANT_MODULE_EXPORT
 EnchantProvider *init_enchant_provider (void);
 
 EnchantProvider *
