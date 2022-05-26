@@ -1,47 +1,3 @@
- msvc16/enchant2.sln                |   56 +
- msvc16/libenchant.vcxproj          |  226 +
- msvc16/libenchant.vcxproj.user     |    9 +
- msvc16/libenchant_hunspell.vcxproj |  225 +
- providers/enchant_hunspell.cpp     |    1 +
- providers/hunspell/Makefile.am     |   18 +
- providers/hunspell/Makefile.in     |  751 +++
- providers/hunspell/affentry.cxx    |  983 ++++
- providers/hunspell/affentry.hxx    |  223 +
- providers/hunspell/affixmgr.cxx    | 4867 ++++++++++++++++++
- providers/hunspell/affixmgr.hxx    |  368 ++
- providers/hunspell/atypes.hxx      |  129 +
- providers/hunspell/baseaffix.hxx   |   74 +
- providers/hunspell/csutil.cxx      | 2636 ++++++++++
- providers/hunspell/csutil.hxx      |  327 ++
- providers/hunspell/filemgr.cxx     |  117 +
- providers/hunspell/filemgr.hxx     |   98 +
- providers/hunspell/hashmgr.cxx     | 1389 +++++
- providers/hunspell/hashmgr.hxx     |  158 +
- providers/hunspell/htypes.hxx      |   75 +
- providers/hunspell/hunspell.cxx    | 2247 ++++++++
- providers/hunspell/hunspell.h      |  162 +
- providers/hunspell/hunspell.hxx    |  229 +
- providers/hunspell/hunvisapi.h     |   18 +
- providers/hunspell/hunvisapi.h.in  |   18 +
- providers/hunspell/hunzip.cxx      |  256 +
- providers/hunspell/hunzip.hxx      |   87 +
- providers/hunspell/langnum.hxx     |   76 +
- providers/hunspell/phonet.cxx      |  270 +
- providers/hunspell/phonet.hxx      |   50 +
- providers/hunspell/replist.cxx     |  196 +
- providers/hunspell/replist.hxx     |  100 +
- providers/hunspell/suggestmgr.cxx  | 2263 +++++++++
- providers/hunspell/suggestmgr.hxx  |  183 +
- providers/hunspell/utf_info.hxx    | 9882 ++++++++++++++++++++++++++++++++++++
- providers/hunspell/w_char.hxx      |   72 +
- src/config.h                       |   16 +
- src/configmake.h                   |    4 +
- src/enchant-provider.h             |    2 +
- src/enchant.h                      |   36 +
- src/lib.c                          |   14 +-
- src/pwl.c                          |    5 +-
- 42 files changed, 28910 insertions(+), 6 deletions(-)
-
 diff --git a/msvc16/enchant2.sln b/msvc16/enchant2.sln
 new file mode 100644
 index 0000000..90e8fc7
@@ -106,7 +62,7 @@ index 0000000..90e8fc7
 +EndGlobal
 diff --git a/msvc16/libenchant.vcxproj b/msvc16/libenchant.vcxproj
 new file mode 100644
-index 0000000..1f3f2ba
+index 0000000..17fe827
 --- /dev/null
 +++ b/msvc16/libenchant.vcxproj
 @@ -0,0 +1,226 @@
@@ -201,7 +157,7 @@ index 0000000..1f3f2ba
 +    </PreBuildEvent>
 +    <ClCompile>
 +      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\aspell;$(SolutionDir)..\lib\hspell;$(SolutionDir)..\lib\voikko;$(SolutionDir)..\lib;$(SolutionDir)..\lib\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <MinimalRebuild>true</MinimalRebuild>
 +      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -232,7 +188,7 @@ index 0000000..1f3f2ba
 +    </PreBuildEvent>
 +    <ClCompile>
 +      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\aspell;$(SolutionDir)..\lib\hspell;$(SolutionDir)..\lib\voikko;$(SolutionDir)..\lib;$(SolutionDir)..\lib\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
 +      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -261,7 +217,7 @@ index 0000000..1f3f2ba
 +      <Command />
 +    </PreBuildEvent>
 +    <ClCompile>
-+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\..\deps\aspell;$(SolutionDir)..\..\deps\hspell;$(SolutionDir)..\..\deps\voikko;($(SolutionDir)..\..\deps\include;$(SolutionDir)..\..\deps\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 +      <PrecompiledHeader />
@@ -291,7 +247,7 @@ index 0000000..1f3f2ba
 +      </Command>
 +    </PreBuildEvent>
 +    <ClCompile>
-+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\..\deps\aspell;$(SolutionDir)..\..\deps\hspell;$(SolutionDir)..\..\deps\voikko;($(SolutionDir)..\..\deps\include;$(SolutionDir)..\..\deps\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 +      <PrecompiledHeader>
@@ -355,7 +311,7 @@ index 0000000..ed1115c
 \ No newline at end of file
 diff --git a/msvc16/libenchant_hunspell.vcxproj b/msvc16/libenchant_hunspell.vcxproj
 new file mode 100644
-index 0000000..974f8b8
+index 0000000..f8cfeb8
 --- /dev/null
 +++ b/msvc16/libenchant_hunspell.vcxproj
 @@ -0,0 +1,225 @@
@@ -448,7 +404,7 @@ index 0000000..974f8b8
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
 +    <ClCompile>
 +      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\glib\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\myspell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;$(SolutionDir)..\providers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>HUNSPELL_STATIC;_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;MYSPELL_PROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <MinimalRebuild>true</MinimalRebuild>
 +      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -471,7 +427,7 @@ index 0000000..974f8b8
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 +    <ClCompile>
 +      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>$(SolutionDir)..\lib\glib\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\myspell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;$(SolutionDir)..\providers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>HUNSPELL_STATIC;_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;MYSPELL_PROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
 +      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -493,7 +449,7 @@ index 0000000..974f8b8
 +  </ItemDefinitionGroup>
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
 +    <ClCompile>
-+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib\myspell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;$(SolutionDir)..\providers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>HUNSPELL_STATIC;_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;MYSPELL_PROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 +      <PrecompiledHeader />
@@ -515,7 +471,7 @@ index 0000000..974f8b8
 +  </ItemDefinitionGroup>
 +  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 +    <ClCompile>
-+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib\myspell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;$(SolutionDir)..\providers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 +      <PreprocessorDefinitions>HUNSPELL_STATIC;_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;MYSPELL_PROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
 +      <PrecompiledHeader>

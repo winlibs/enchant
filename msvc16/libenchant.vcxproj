@@ -89,7 +89,7 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\aspell;$(SolutionDir)..\lib\hspell;$(SolutionDir)..\lib\voikko;$(SolutionDir)..\lib;$(SolutionDir)..\lib\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -120,7 +120,7 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\src;$(SolutionDir)..\lib\aspell;$(SolutionDir)..\lib\hspell;$(SolutionDir)..\lib\voikko;$(SolutionDir)..\lib;$(SolutionDir)..\lib\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -149,7 +149,7 @@
       <Command />
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\..\deps\aspell;$(SolutionDir)..\..\deps\hspell;$(SolutionDir)..\..\deps\voikko;($(SolutionDir)..\..\deps\include;$(SolutionDir)..\..\deps\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader />
@@ -179,7 +179,7 @@
       </Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\..\deps\aspell;$(SolutionDir)..\..\deps\hspell;$(SolutionDir)..\..\deps\voikko;($(SolutionDir)..\..\deps\include;$(SolutionDir)..\..\deps\zemberek;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\deps\include\glib-2.0;$(SolutionDir)..\..\deps\lib\glib-2.0\include;$(SolutionDir)..\src;$(SolutionDir)..\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_ENCHANT_BUILD=1;_CRT_SECURE_NO_WARNINGS;_WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
