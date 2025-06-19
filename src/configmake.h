@@ -1,4 +1,4 @@
-#define PKGDATADIR "/usr/local/share/enchant"
-#define PKGLIBDIR "/usr/local/lib/enchant"
-#define SYSCONFDIR "/usr/local/etc"
-#define INSTALLPREFIX "/usr/local"
+#define PKGDATADIR "share\\enchant"
+#define PKGLIBDIR "lib\\enchant"
+#define SYSCONFDIR "etc"
+#define INSTALLPREFIX "."
