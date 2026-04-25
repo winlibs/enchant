@@ -31,31 +31,18 @@
 #include <string>
 #include <vector>
 
-static EnchantDict*
-MockProviderRequestEmptyMockDictionary(EnchantProvider *, const char *)
+static int
+MockDictionaryCheck (EnchantProviderDict * ,
+                     const char *const word,
+                     size_t len)
 {
-    EnchantDict* dict = g_new0(EnchantDict, 1);
-    dict->user_data = NULL;
-    dict->check = NULL;
-    dict->suggest = NULL;
-    dict->add_to_personal = NULL;
-    dict->add_to_session = NULL;
-    dict->store_replacement = NULL;
-	
-    return dict;
+    return 1;
 }
-
-static void EmptyDictionary_ProviderConfiguration (EnchantProvider * me, const char *)
-{
-     me->request_dict = MockProviderRequestEmptyMockDictionary;
-     me->dispose_dict = MockProviderDisposeDictionary;
-}
-
 
 static char**
-MockDictionarySuggest (EnchantDict * , 
+MockDictionarySuggest (EnchantProviderDict * , 
                        const char *const word,
-		               size_t len, 
+                       size_t len, 
                        size_t * out_n_suggs)
 {
     *out_n_suggs = 4;
@@ -73,15 +60,23 @@ MockDictionarySuggest (EnchantDict * ,
     return sugg_arr;
 }
 
-static EnchantDict*
+static EnchantProviderDict*
 MockProviderRequestBasicMockDictionary(EnchantProvider *me, const char *tag)
 {
-    
-    EnchantDict* dict = MockProviderRequestEmptyMockDictionary(me, tag);
+    EnchantProviderDict* dict = enchant_provider_dict_new(me, tag);
+    dict->user_data = NULL;
+    dict->check = MockDictionaryCheck;
     dict->suggest = MockDictionarySuggest;
+    dict->add_to_session = NULL;
+
     return dict;
 }
 
+static void EmptyDictionary_ProviderConfiguration (EnchantProvider * me, const char *)
+{
+     me->request_dict = MockProviderRequestBasicMockDictionary;
+     me->dispose_dict = MockProviderDisposeDictionary;
+}
 
 static void BasicDictionary_ProviderConfiguration (EnchantProvider * me, const char *)
 {
@@ -163,7 +158,7 @@ struct EnchantDictionaryTestFixture : EnchantBrokerTestFixture
         return FileHasContents(GetExcludeDictFileName());
     }
 
-	bool BrokerPWLFileHasContents()
+    bool BrokerPWLFileHasContents()
     {
         return FileHasContents(_pwlFileName);
     }
@@ -211,6 +206,14 @@ struct EnchantDictionaryTestFixture : EnchantBrokerTestFixture
         if(list)
         {
             enchant_dict_free_string_list(_dict, list);
+        }
+    }
+
+    void FreePwlStringList(char** list)
+    {
+        if(list)
+        {
+            enchant_dict_free_string_list(_pwl, list);
         }
     }
 
@@ -301,7 +304,7 @@ struct EnchantDictionaryTestFixture : EnchantBrokerTestFixture
     std::vector<std::string> GetExpectedSuggestions(const std::string& s, size_t begin = 0)
     {
         size_t cSuggestions;
-        char** expectedSuggestions = MockDictionarySuggest (_dict, 
+        char** expectedSuggestions = MockDictionarySuggest (NULL, 
                                                             s.c_str(),
 		                                                    s.size(), 
                                                             &cSuggestions);
@@ -309,7 +312,7 @@ struct EnchantDictionaryTestFixture : EnchantBrokerTestFixture
         std::vector<std::string> result;
         if(expectedSuggestions != NULL && begin < cSuggestions){
             result.insert(result.begin(), expectedSuggestions+begin, expectedSuggestions+cSuggestions);
-            FreeStringList(expectedSuggestions);
+            g_strfreev(expectedSuggestions);
         }
 
         return result;

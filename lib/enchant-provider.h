@@ -1,0 +1,261 @@
+/* enchant
+ * Copyright (C) 2003 Dom Lachowicz
+ * Copyright (C) 2017-2025 Reuben Thomas
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
+ *
+ * In addition, as a special exception, the copyright holders
+ * give permission to link the code of this program with
+ * non-LGPL Spelling Provider libraries (eg: a MSFT Office
+ * spell checker backend) and distribute linked combinations including
+ * the two.  You must obey the GNU Lesser General Public License in all
+ * respects for all of the code used other than said providers.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
+ */
+
+#ifndef ENCHANT_PROVIDER_H
+#define ENCHANT_PROVIDER_H
+
+#include <enchant.h>
+#include <glib.h>
+#include <glib-object.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct _EnchantProviderDict EnchantProviderDict;
+typedef struct _EnchantProvider EnchantProvider;
+
+/**
+ * enchant_get_user_language
+ *
+ * Returns a char string giving the current language.
+ * Defaults to "en" if no language or locale can be found, or
+ * locale is C.
+ *
+ * The returned string should be free'd with free.
+ */
+char *enchant_get_user_language(void);
+
+/**
+ * enchant_get_user_config_dir
+ *
+ * Returns a string giving the location of the user's Enchant configuration
+ * directory. Defaults to the value of the environment variable
+ * ENCHANT_CONFIG_DIR; if that is not set, or invalid, then glib's
+ * g_get_user_config_dir() is called to get the user's configuration
+ * directory, and the sub-directory "enchant" is appended.
+ *
+ * The returned string must be g_free'd.
+ */
+char *enchant_get_user_config_dir (void);
+
+/**
+ * enchant_provider_get_user_dict_dir
+ *
+ * Returns the user dictionary directory for the given provider, or NULL on
+ * error, or if none exists.
+ *
+ * The return value must be g_free'd.
+ */
+char *enchant_provider_get_user_dict_dir (EnchantProvider * provider);
+
+/**
+ * enchant_get_conf_dirs
+ *
+ * Returns a list (GSList *) of configuration directories, in the order in
+ * which they are used, or NULL on error.
+ *
+ * The following directories are in the list:
+ *
+ *  + Enchant's internal configuration directory (pkgdatadir)
+ *  + The system configuration directory (sysconfdir/enchant)
+ *  + The user configuration directory, as returned by
+ *     enchant_get_user_config_dir(), if it exists.
+ */
+GSList *enchant_get_conf_dirs (void);
+
+/**
+ * enchant_get_prefix_dir
+ *
+ * Returns a string giving the location of the base directory of the enchant
+ * installation. This corresponds roughly to the --prefix option given to
+ * ./configure when enchant is compiled, except it is determined at runtime
+ * based on the location of the enchant library.
+ *
+ * The return value must be free'd.
+ */
+char *enchant_get_prefix_dir(void);
+
+/**
+ * enchant_relocate
+ *
+ * Returns a string giving the relocated path according to the location of
+ * the base directory of the enchant installation.
+ *
+ * The return value must be free'd.
+ */
+char *enchant_relocate (const char *path);
+
+/**
+ * enchant_provider_dict_new
+ * @provider: A provider, or %null.
+ * @tag: The language tag, or a description, for a non-language-specific
+ * dictionary.
+ *
+ * Returns a new EnchantProviderDict.
+ */
+EnchantProviderDict *enchant_provider_dict_new (EnchantProvider *provider, const char *tag);
+
+/**
+ * enchant_dict_set_error
+ * @dict: A non-null dictionary
+ * @err: A non-null error message
+ *
+ * Sets the current runtime error to @err. This API is private to the
+ * providers, and only used for testing.
+ */
+void enchant_dict_set_error (EnchantDict * dict, const char * const err);
+
+/**
+ * enchant_dict_set_error
+ * @dict: A non-null dictionary
+ * @err: A non-null error message
+ *
+ * Sets the current runtime error to @err.
+ */
+void enchant_provider_dict_set_error (EnchantProviderDict * dict, const char * const err);
+
+/**
+ * enchant_provider_new
+ *
+ * Returns a new EnchantProvider.
+ */
+EnchantProvider *enchant_provider_new (void);
+
+/**
+ * enchant_provider_set_error
+ * @provider: A non-null provider
+ * @err: A non-null error message
+ *
+ * Sets the current runtime error to @err. This API is private to the
+ * providers.
+ */
+void enchant_provider_set_error (EnchantProvider * provider, const char * const err);
+
+typedef struct _EnchantProviderDictPrivate *EnchantProviderDictPrivate;
+
+struct _EnchantProviderDict
+{
+	GTypeInstance parent_instance;
+	volatile int ref_count;
+	EnchantProviderDictPrivate * priv;
+	void *user_data;
+	EnchantProvider *provider;
+	gchar *language_tag;
+	gchar *error;
+
+	// Implement enchant_dict_check for the given provider dictionary.
+	// This method is mandatory.
+	int (*check) (struct _EnchantProviderDict * me, const char *const word,
+			  size_t len);
+
+	// Implement enchant_dict_suggest for the given provider dictionary.
+	// Returns an array of *out_n_suggs UTF-8 encoded strings. Elements
+	// of word may be NULL.
+	// This method is mandatory.
+	char **(*suggest) (struct _EnchantProviderDict * me,
+			   const char *const word, size_t len,
+			   size_t * out_n_suggs);
+
+	// Implement enchant_dict_add_to_session for the given provider
+	// dictionary.
+	// This method is optional.
+	void (*add_to_session) (struct _EnchantProviderDict * me,
+				const char *const word, size_t len);
+
+	// Implement enchant_dict_remove_from_session for the given provider
+	// dictionary.
+	// This method is optional.
+	void (*remove_from_session) (struct _EnchantProviderDict * me,
+				const char *const word, size_t len);
+
+	// Implement enchant_dict_get_extra_word_characters for the given
+	// provider dictionary.
+	// This method is optional.
+	const char * (*get_extra_word_characters) (struct _EnchantProviderDict * me);
+
+	// Implement enchant_dict_is_word_character for the given provider
+	// dictionary.
+	// This method is optional.
+	int (*is_word_character) (struct _EnchantProviderDict * me,
+				  uint32_t uc_in, size_t n);
+};
+
+typedef struct _EnchantProviderPrivate *EnchantProviderPrivate;
+
+struct _EnchantProvider {
+	GTypeInstance parent_instance;
+	volatile int ref_count;
+	EnchantProviderPrivate * priv;
+	void* user_data;
+	void* enchant_private_data;
+	EnchantBroker* owner;
+
+	// Free any resources associated with this provider.
+	// This method is mandatory.
+	void (*dispose) (struct _EnchantProvider * me);
+
+	// Return a provider dictionary for the given language tag, or NULL if
+	// no suitable dictionary can be found.
+	// This method is mandatory.
+	EnchantProviderDict *(*request_dict) (struct _EnchantProvider * me,
+				      const char *const tag);
+
+	// Free any resources associated with the given provider dictionary.
+	// This method is mandatory.
+	void (*dispose_dict) (struct _EnchantProvider * me,
+			      EnchantProviderDict * dict);
+
+	// Return 1 if a dictionary for the given tag exists, or 0 if not.
+	// This method is optional.
+	int (*dictionary_exists) (struct _EnchantProvider * me,
+				  const char *const tag);
+
+	// Return a UTF-8 string identifying the provider. This string should
+	// be a single word, without spaces.
+	// This method is mandatory.
+	const char * (*identify) (struct _EnchantProvider * me);
+
+	// Return a UTF-8 string describing the provider.
+	// This method is mandatory.
+	const  char * (*describe) (struct _EnchantProvider * me);
+
+	// Return an array of *out_n_dicts dictionary tags. Elements
+	// of word may be NULL.
+	// This method is mandatory.
+	char ** (*list_dicts) (struct _EnchantProvider * me,
+			       size_t * out_n_dicts);
+};
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ENCHANT_PROVIDER_H */

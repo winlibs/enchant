@@ -1,13 +1,25 @@
-EXTRA_DIST =			\
-	AppleSpell.config
+## Makefile.am for the providers subdirectory of Enchant
+#
+# Copyright (C) 2017-2024 Reuben Thomas
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, see <https://www.gnu.org/licenses/>.
+
+EXTRA_DIST = AppleSpell.config
 
 provider_LTLIBRARIES =
 providerdir = $(pkglibdir)-@ENCHANT_MAJOR_VERSION@
+libenchant_datadir = $(pkgdatadir)-@ENCHANT_MAJOR_VERSION@
 
-AM_CPPFLAGS = -I$(top_srcdir) $(ISYSTEM)$(top_builddir)/lib $(ISYSTEM)$(top_srcdir)/lib -I$(top_srcdir)/src $(ENCHANT_CFLAGS)  -D_ENCHANT_BUILD=1
+AM_CPPFLAGS = -I$(top_srcdir) $(ISYSTEM)$(top_builddir)/libgnu $(ISYSTEM)$(top_srcdir)/libgnu -I$(top_srcdir)/lib $(GLIB_CFLAGS) -D_ENCHANT_BUILD=1
 AM_CFLAGS = $(WARN_CFLAGS)
 AM_CXXFLAGS = $(WARN_CXXFLAGS)
-AM_LDFLAGS = -module -avoid-version -no-undefined $(ENCHANT_LIBS) $(top_builddir)/src/libenchant-@ENCHANT_MAJOR_VERSION@.la $(top_builddir)/lib/libgnu.la
+AM_LDFLAGS = -module -avoid-version -no-undefined $(GLIB_LIBS) $(top_builddir)/lib/libenchant-@ENCHANT_MAJOR_VERSION@.la $(top_builddir)/libgnu/libgnu.la
 
 if WITH_ASPELL
 provider_LTLIBRARIES += enchant_aspell.la
@@ -34,7 +46,7 @@ enchant_nuspell_la_SOURCES = enchant_nuspell.cpp
 if WITH_VOIKKO
 provider_LTLIBRARIES += enchant_voikko.la
 endif
-enchant_voikko_la_CXXFLAGS = $(AM_CXXFLAGS) $(VOIKKO_CFLAGS)
+enchant_voikko_la_CFLAGS = $(AM_CFLAGS) $(VOIKKO_CFLAGS)
 enchant_voikko_la_LIBADD = $(VOIKKO_LIBS)
 
 if WITH_ZEMBEREK
@@ -46,8 +58,25 @@ enchant_zemberek_la_SOURCES = enchant_zemberek.cpp
 
 if WITH_APPLESPELL
 provider_LTLIBRARIES += enchant_applespell.la
-pkgdata_DATA = AppleSpell.config
+libenchant_data_DATA = AppleSpell.config
 endif
 enchant_applespell_la_LIBTOOLFLAGS = $(AM_LIBTOOLFLAGS) --tag=CXX
 enchant_applespell_la_OBJCXXFLAGS = $(AM_OBJCXXFLAGS)
 enchant_applespell_la_SOURCES = applespell_checker.mm
+
+install-data-hook:
+	cd $(DESTDIR)$(providerdir) && $(RM) $(provider_LTLIBRARIES) *.a
+
+# Removing files in install-data-hook seems to confuse libtool's uninstall mode,
+# so it fails to remove the .so files. Remove them for it.
+uninstall-hook:
+	cd $(DESTDIR)$(providerdir) && $(RM) $(provider_LTLIBRARIES) *.a *@shlibext@
+
+loc:
+	$(CLOC) $(ALL_SOURCE_FILES)
+
+ALL_SOURCE_FILES = \
+	Makefile.am \
+	*.[ch] \
+	*.cpp \
+	*.mm

@@ -38,6 +38,7 @@
 #include <codecvt>
 
 #include "enchant.h"
+#include "enchant-provider.h"
 
 struct EnchantTestFixture
 {
@@ -66,7 +67,11 @@ struct EnchantTestFixture
 
     std::string GetEnchantConfigDir()
     {
-        return AddToPath("share", "enchant");
+        GSList *config_dirs = enchant_get_conf_dirs();
+        const char *pkgdatadir = (char *)g_slist_nth(config_dirs, 0)->data;
+        auto res = std::string(pkgdatadir);
+        g_slist_free_full(config_dirs, g_free);
+        return res;
     }
 
     static void DeleteDirAndFiles(const std::string& dir)

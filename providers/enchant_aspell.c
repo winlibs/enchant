@@ -1,5 +1,6 @@
 /* enchant
  * Copyright (C) 2003,2004 Dom Lachowicz
+ * Copyright (C) 2017-2025 Reuben Thomas
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -8,16 +9,15 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  *
- * In addition, as a special exception, Dom Lachowicz
- * gives permission to link the code of this program with
+ * In addition, as a special exception, the copyright holders
+ * give permission to link the code of this program with
  * non-LGPL Spelling Provider libraries (eg: a MSFT Office
  * spell checker backend) and distribute linked combinations including
  * the two.  You must obey the GNU Lesser General Public License in all
@@ -42,13 +42,14 @@
 #include <aspell.h>
 
 #include "enchant-provider.h"
-#include "unused-parameter.h"
 
+
+static EnchantProvider *provider;
 
 EnchantProvider *init_enchant_provider (void);
 
 static int
-aspell_dict_check (EnchantDict * me, const char *const word, size_t len)
+aspell_dict_check (EnchantProviderDict * me, const char *const word, size_t len)
 {
 	AspellSpeller *manager = (AspellSpeller *) me->user_data;
 
@@ -61,116 +62,88 @@ aspell_dict_check (EnchantDict * me, const char *const word, size_t len)
 	else if (val > 0)
 		return 0;
 	else {
-		enchant_dict_set_error (me, aspell_speller_error_message (manager));
+		enchant_provider_dict_set_error (me, aspell_speller_error_message (manager));
 		return -1;
 	}
 }
 
 static char **
-aspell_dict_suggest (EnchantDict * me, const char *const word,
+aspell_dict_suggest (EnchantProviderDict * me, const char *const word,
 		     size_t len, size_t * out_n_suggs)
 {
 	AspellSpeller *manager = (AspellSpeller *) me->user_data;
-	
+
 	char *normalizedWord = g_utf8_normalize (word, len, G_NORMALIZE_NFC);
 	const AspellWordList *word_list = aspell_speller_suggest (manager, normalizedWord, strlen(normalizedWord));
 	g_free(normalizedWord);
 
 	char **sugg_arr = NULL;
-	if (word_list)
-		{
-			AspellStringEnumeration *suggestions = aspell_word_list_elements (word_list);
-			if (suggestions)
-				{
-					size_t n_suggestions = aspell_word_list_size (word_list);
-					*out_n_suggs = n_suggestions;
-					
-					if (n_suggestions)
-						{
-							sugg_arr = g_new0 (char *, n_suggestions + 1);
-							
-							for (size_t i = 0; i < n_suggestions; i++)
-								{
-									const char *sugg = aspell_string_enumeration_next (suggestions);
-									if (sugg)
-										sugg_arr[i] = g_strdup (sugg);
-								}
-						}
-					delete_aspell_string_enumeration (suggestions);
-				}
+	if (word_list) {
+		AspellStringEnumeration *suggestions = aspell_word_list_elements (word_list);
+		if (suggestions) {
+			size_t n_suggestions = aspell_word_list_size (word_list);
+
+			if (n_suggestions) {
+				*out_n_suggs = n_suggestions;
+				sugg_arr = g_new0 (char *, n_suggestions + 1);
+				if (sugg_arr)
+					for (size_t i = 0; i < n_suggestions; i++)
+						sugg_arr[i] = g_strdup(aspell_string_enumeration_next(suggestions));
+			} else
+				*out_n_suggs = 0;
+			delete_aspell_string_enumeration (suggestions);
 		}
-	
+	}
+
 	return sugg_arr;
 }
 
 static void
-aspell_dict_add_to_personal (EnchantDict * me,
-			     const char *const word, size_t len)
-{
-	AspellSpeller *manager = (AspellSpeller *) me->user_data;
-	aspell_speller_add_to_personal (manager, word, len);
-	aspell_speller_save_all_word_lists (manager);
-}
-
-static void
-aspell_dict_add_to_session (EnchantDict * me,
+aspell_dict_add_to_session (EnchantProviderDict * me,
 			    const char *const word, size_t len)
 {
 	AspellSpeller *manager = (AspellSpeller *) me->user_data;
 	aspell_speller_add_to_session (manager, word, len);
 }
 
-static void
-aspell_dict_store_replacement (EnchantDict * me,
-			       const char *const mis, size_t mis_len,
-			       const char *const cor, size_t cor_len)
-{
-	AspellSpeller *manager = (AspellSpeller *) me->user_data;
-	aspell_speller_store_replacement (manager, mis, mis_len,
-					  cor, cor_len);
-	aspell_speller_save_all_word_lists (manager);
-}
-
-static EnchantDict *
-aspell_provider_request_dict (EnchantProvider * me _GL_UNUSED_PARAMETER, const char *const tag)
+static EnchantProviderDict *
+aspell_provider_request_dict (EnchantProvider * me, const char *const tag)
 {
 	AspellConfig *spell_config = new_aspell_config ();
-	aspell_config_replace (spell_config, "language-tag", tag);
+	aspell_config_replace (spell_config, "master", tag);
 	aspell_config_replace (spell_config, "encoding", "utf-8");
-	
+
 	AspellCanHaveError *spell_error = new_aspell_speller (spell_config);
 	delete_aspell_config (spell_config);
-	
-	if (aspell_error_number (spell_error) != 0)
-		{
-			delete_aspell_can_have_error(spell_error);
-			return NULL;
-		}
-	
+
+	if (aspell_error_number (spell_error) != 0) {
+		enchant_provider_set_error (me, aspell_error_message (spell_error));
+		delete_aspell_can_have_error(spell_error);
+		return NULL;
+	}
+
 	AspellSpeller *manager = to_aspell_speller (spell_error);
-	
-	EnchantDict *dict = g_new0 (EnchantDict, 1);
+
+	EnchantProviderDict *dict = enchant_provider_dict_new (provider, tag);
+	if (dict == NULL)
+		return NULL;
 	dict->user_data = (void *) manager;
 	dict->check = aspell_dict_check;
 	dict->suggest = aspell_dict_suggest;
-	dict->add_to_personal = aspell_dict_add_to_personal;
 	dict->add_to_session = aspell_dict_add_to_session;
-	dict->store_replacement = aspell_dict_store_replacement;
-	
+
 	return dict;
 }
 
 static void
-aspell_provider_dispose_dict (EnchantProvider * me _GL_UNUSED_PARAMETER, EnchantDict * dict)
+aspell_provider_dispose_dict (EnchantProvider * me _GL_UNUSED, EnchantProviderDict * dict)
 {
 	AspellSpeller *manager = (AspellSpeller *) dict->user_data;
 	delete_aspell_speller (manager);
-	
-	g_free (dict);
 }
 
-static char ** 
-aspell_provider_list_dicts (EnchantProvider * me _GL_UNUSED_PARAMETER, 
+static char **
+aspell_provider_list_dicts (EnchantProvider * me _GL_UNUSED,
 			    size_t * out_n_dicts)
 {
 	AspellConfig * spell_config = new_aspell_config ();
@@ -179,54 +152,50 @@ aspell_provider_list_dicts (EnchantProvider * me _GL_UNUSED_PARAMETER,
 	*out_n_dicts = 0;
 	AspellDictInfoEnumeration * dels = aspell_dict_info_list_elements (dlist);
 
-	/* Note: aspell_dict_info_list_size() always returns zero: https://github.com/GNUAspell/aspell/issues/155 */
+	/* Note: aspell_dict_info_list_size() is unimplemented: https://github.com/GNUAspell/aspell/issues/155 */
 	const AspellDictInfo * entry;
 	while ( (entry = aspell_dict_info_enumeration_next(dels)) != 0)
 		(*out_n_dicts)++;
-	delete_aspell_dict_info_enumeration (dels);
 
-	char ** out_list = NULL;
-
-	if (*out_n_dicts) {
-		out_list = g_new0 (char *, *out_n_dicts + 1);
-		dels = aspell_dict_info_list_elements (dlist);
-		
+        delete_aspell_dict_info_enumeration (dels);
+        dels = aspell_dict_info_list_elements (dlist);
+	char ** out_list = g_new0 (char *, *out_n_dicts + 1);
+	if (out_list)
 		for (size_t i = 0; i < *out_n_dicts; i++) {
-			entry = aspell_dict_info_enumeration_next (dels);			
-			/* FIXME: should this be entry->code or entry->name ? */
-			out_list[i] = g_strdup (entry->code);
+			entry = aspell_dict_info_enumeration_next (dels);
+			out_list[i] = g_strdup (entry->name);
 		}
-		
-		delete_aspell_dict_info_enumeration (dels);
-	}
-	
+	else
+		*out_n_dicts = 0;
+
+	delete_aspell_dict_info_enumeration (dels);
 	delete_aspell_config (spell_config);
-	
+
 	return out_list;
 }
 
-static void
-aspell_provider_dispose (EnchantProvider * me)
-{
-	g_free (me);
-}
-
 static const char *
-aspell_provider_identify (EnchantProvider * me _GL_UNUSED_PARAMETER)
+aspell_provider_identify (EnchantProvider * me _GL_UNUSED)
 {
 	return "aspell";
 }
 
 static const char *
-aspell_provider_describe (EnchantProvider * me _GL_UNUSED_PARAMETER)
+aspell_provider_describe (EnchantProvider * me _GL_UNUSED)
 {
 	return "Aspell Provider";
+}
+
+static void
+aspell_provider_dispose (EnchantProvider * me _GL_UNUSED)
+{
+	provider = NULL;
 }
 
 EnchantProvider *
 init_enchant_provider (void)
 {
-	EnchantProvider *provider = g_new0 (EnchantProvider, 1);
+	provider = enchant_provider_new ();
 	provider->dispose = aspell_provider_dispose;
 	provider->request_dict = aspell_provider_request_dict;
 	provider->dispose_dict = aspell_provider_dispose_dict;

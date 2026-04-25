@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2018 Free Software Foundation, Inc.
+# Copyright (C) 2002-2025 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This file is distributed in the hope that it will be useful,
@@ -27,55 +27,47 @@
 
 
 # Specification in the form of a command-line invocation:
-# gnulib-tool --import --local-dir=gl --local-dir=gl-mod/bootstrap \
+# gnulib-tool --import \
+#  --local-dir=gl-mod/bootstrap \
+#  --local-dir=gl \
 #  --lib=libgnu \
-#  --source-base=lib \
+#  --source-base=libgnu \
 #  --m4-base=m4 \
 #  --doc-base=doc \
 #  --tests-base=tests \
 #  --aux-dir=build-aux \
-#  --lgpl \
+#  --lgpl=2 \
 #  --makefile-name=Makefile.gnulib \
 #  --no-conditional-dependencies \
 #  --libtool \
 #  --macro-prefix=gl \
 #  bootstrap \
-#  c99 \
 #  configmake \
 #  flock \
 #  getopt-posix \
 #  gnu-make \
 #  manywarnings \
-#  relocatable-lib-lgpl \
-#  snippet/unused-parameter \
-#  ssize_t \
-#  strchrnul \
-#  strdup-posix
+#  relocatable-lib-lgpl
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
-gl_LOCAL_DIR([gl:gl-mod/bootstrap])
+gl_LOCAL_DIR([gl-mod/bootstrap:gl])
 gl_MODULES([
   bootstrap
-  c99
   configmake
   flock
   getopt-posix
   gnu-make
   manywarnings
   relocatable-lib-lgpl
-  snippet/unused-parameter
-  ssize_t
-  strchrnul
-  strdup-posix
 ])
 gl_AVOID([])
-gl_SOURCE_BASE([lib])
+gl_SOURCE_BASE([libgnu])
 gl_M4_BASE([m4])
 gl_PO_BASE([])
 gl_DOC_BASE([doc])
 gl_TESTS_BASE([tests])
 gl_LIB([libgnu])
-gl_LGPL
+gl_LGPL([2])
 gl_MAKEFILE_NAME([Makefile.gnulib])
 gl_LIBTOOL
 gl_MACRO_PREFIX([gl])

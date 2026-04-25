@@ -1,0 +1,127 @@
+\" Enchant configuration man page
+\"
+\" Copyright (C) 2022-2024 Reuben Thomas
+\"
+\" This library is distributed in the hope that it will be useful,
+\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+\" Lesser General Public License for more details.
+\"
+\" You should have received a copy of the GNU Lesser General Public License
+\" along with this program; if not, see <https://www.gnu.org/licenses/>.
+\"
+.TH ENCHANT 5
+.SH NAME
+Enchant \- enchant language tags, ordering files and personal word lists
+.SH LANGUAGE TAGS
+Enchant identifies dictionaries by their language tag. A language tag is
+typically an IETF BCP 47 language tag of the form \fILANGUAGE_COUNTRY\fR;
+for example, \fIen_US\fR or \fIzh_SG\fR. Multiple dictionaries may be used
+together by giving a comma-separated list; for example \fIen_GB,fr_FR\fR.
+This can be useful for checking multi-lingual text, or for using specialised
+word lists for a particular subject, project or document (these might have
+names such as \fIen-medical\fR or \fIen-my-novel\fR).
+.SH ORDERING FILE
+Enchant uses global and per-user ordering files named \fIenchant.ordering\fR
+to decide which spelling provider to use for particular languages.
+The per-user file takes precedence.
+.PP
+The ordering file takes the form \fIlanguage_tag:<comma-separated list of spelling
+providers>\fR.
+To see what dictionaries are available, run \fIenchant-lsmod-2\fR. \(oq*\(cq is
+used to mean \(lquse this ordering for all languages, unless instructed otherwise.\(rq For example:
+.IP
+*:aspell,hunspell,nuspell
+.br
+en:aspell,hunspell,nuspell
+.br
+en_GB:hunspell,nuspell,aspell
+.br
+fr:hunspell,nuspell,aspell
+.SH PERSONAL WORD LISTS
+Personal word lists are simple plain text files with one word per line.
+The name of the file starts with the language tag and ends \fI.dic\fR.
+Each personal word list has a corresponding exclude file, ending in
+\fI.exc\fR, which lists words that are found in the dictionary but that the
+user wants to be considered invalid.
+The files are stored in an Enchant configuration directory; see
+.B FILES AND DIRECTORIES
+below.
+Lines starting with a hash sign \(oq#\(cq are ignored.
+.SS SHARING PERSONAL WORD LISTS BETWEEN SPELL-CHECKERS
+It is possible, and usually safe, to share Enchant\(cqs personal word lists
+with other spelling checkers that use the same format (note that other
+spell-checkers may not support comments!). The spell-checkers known to be
+compatible are Hunspell, Nuspell and Ispell. (Although Enchant does not
+support Ispell as a provider, it\(cqs still fine to share word lists with it.)
+Other spell-checkers supported by Enchant are either incompatible, or have
+no personal word list mechanism. There may well be yet other spell-checkers,
+unknown to Enchant, that use the same format.
+.PP
+Some applications use Hunspell or Nuspell, but store the personal word list
+under another name or in another location; Firefox and Thunderbird do this. Firefox
+also seems to reorder its word list when updating it; again, this is OK, as
+the result is still in the same format.
+.PP
+To share word lists with Enchant, find the other spelling checker\(cqs word
+list file, e.g. \fI~/.hunspell_fr_FR\fR or \fI~/.config/nuspell/fr_FR\fR,
+and merge it with the corresponding Enchant file, in this case
+\fI~/.config/enchant/fr_FR.dic\fR. Use the following command, replacing
+\fIENCHANT-DICT\fR and \fIOTHER-DICT\fR with the corresponding dictionary
+file names:
+.IP
+cat ENCHANT-DICT OTHER-DICT | sort -u > merged.txt
+.PP
+Take a look at \fImerged.txt\fR to check the merge has worked, then
+.IP
+mv merged.txt ENCHANT-DICT
+.br
+rm OTHER-DICT
+.br
+ln -s OTHER-DICT ENCHANT-DICT
+.PP
+to replace the other dictionary file with a link to the Enchant dictionary,
+again filling in the name of the dictionary files.
+.SH ENVIRONMENT
+The following variables affect the behavior of Enchant:
+.TP
+\fIENCHANT_CONFIG_DIR\fR
+A directory in which Enchant should look for configuration files. See below.
+.TP
+\fIG_MESSAGES_DEBUG\fR
+Enchant uses GLib's log functions, with the domain \fIlibenchant\fR, to
+output messages useful for debugging. Setting \fIG_MESSAGES_DEBUG\fR to
+\fIlibenchant\fR will cause Enchant to output debugging messages to standard
+error. See the GLib documentation for more details.
+.SH FILES AND DIRECTORIES
+Enchant looks in the following places for user files, in decreasing order of precedence:
+.TP
+\fIENCHANT_CONFIG_DIR\fR
+(If the environment variable is set.)
+.TP
+\fIXDG_CONFIG_HOME/enchant\fR (non-Windows systems)
+Default: \fI~/.config/enchant\fR
+.TP
+\fICSIDL_LOCAL_APPDATA\\enchant\fR (Windows systems)
+Default: \fIC:\\Documents and Settings\\\fRusername\fI\\Local Settings\\Application Data\\enchant
+.PP
+Dictionaries for some providers are looked for in a subdirectory with the
+same name as the provider, for example \fI~/.config/enchant/hunspell\fR.
+Currently this works for Hspell, Hunspell, Nuspell and Voikko.
+.PP
+Providers also look in specific system directories, and in some cases and
+user directories, for their dictionaries; see the documentation for each
+provider.
+.PP
+In addition, Enchant looks in the following systems directories for ordering files:
+.TP
+\fI/home/rrt/.local/etc/enchant-2\fR
+(Or the equivalent location relative to the enchant library for a relocatable build.)
+.TP
+\fI/home/rrt/.local/share/enchant-2\fR
+(Or the equivalent location relative to the enchant library for a relocatable build.)
+.SH "SEE ALSO"
+.BR enchant-2 (1),
+.BR enchant-lsmod-2 (1)
+.SH "AUTHOR"
+Written by Dom Lachowicz and Reuben Thomas.

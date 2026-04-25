@@ -1,3 +1,625 @@
+2.8.15 (February 13, 2026)
+--------------------------
+
+This release fixes two bugs related to personal word lists.
+
+First, removing a word that happens to be at the end of a personal word list
+file has not worked since 2.7.0.
+
+Secondly, the way that personal word lists are merged with the current
+session has been changed so that personal word list words now appear in
+suggestions with providers that support adding words to the current session
+(Aspell and Hunspell). This previously worked, but hadn’t since at least
+2.8.2. Thanks to the users and maintainers of jinx (spelling package for
+Emacs that uses Enchant) for reporting and helping reproduce this bug.
+
+A little code clean-up was also done.
+
+
+2.8.14 (November 20, 2025)
+--------------------------
+
+This release fixes a test failure in the previous release, and improves
+enchant(1)’s word division algorithm, so that it only considers words that
+contain at least one letter. (Words may contain characters that aren’t
+letters, but Enchant was for example considering “1900” to be a word, which
+is probably not helpful.)
+
+
+2.8.13 (November 19, 2025)
+--------------------------
+
+This release fixes a bug in the word division algorithm of enchant(1)
+introduced in 2.8.4, which itself was attempting to fix bugs introduced in
+the previous release. This could have caused a crash, but it seems we were
+saved by careful bounds checking in GLib. Instead, it merely meant that
+characters not valid at the end of a word were not removed as they should be
+before spell-checking.
+
+Note that this bug only affected users of the enchant(1) program, for
+example Emacs users using it via Emacs’s “ispell” command. Users using
+libenchant (i.e. most users) were not affected.
+
+
+2.8.12 (July 28, 2025)
+----------------------
+
+This release fixes a crash introduced in the previous release, where a
+dictionary could have a dangling reference to a provider.
+
+
+2.8.11 (July 22, 2025)
+----------------------
+
+This release fixes a crash when an empty language tag is given, for example
+to `enchant-2 -p`.
+
+Various aspects of the internal provider API have been simplified, and an
+obsolete header file removed.
+
+
+2.8.10 (June 21, 2025)
+----------------------
+
+This release fixes a crash bug and some space leaks in the Hunspell provider
+that were introduced in 2.8.7.
+
+Thanks to @haansn08 and @mike-fabian for the report and debug information.
+
+The handling of PWL dictionaries has also been simplified slightly.
+
+
+2.8.9 (June 17, 2025)
+---------------------
+
+This release fixes a critical bug in the Aspell provider that crept into
+2.8.7. Thanks to @hamkg for the report and @chenrui333 analyzing the
+problem.
+
+A test has been added that simply runs `enchant-lsmod -list-dicts`, which
+would have caught this bug and the double-free fixed in the previous
+release.
+
+
+2.8.8 (June 16, 2025)
+---------------------
+
+The previous release had a “double-free” bug that typically caused a crash
+on application start-up. Thanks to @AdamWill of Fedora for a quick bug
+report that enabled me to locate and instantly fix the bug (apologies!).
+
+A test to detect this sort of bug in future will be forthcoming.
+
+
+2.8.7 (June 15, 2025)
+---------------------
+
+This release stops the Hunspell provider from doing partial matching of
+dictionary tags. This fixes an odd situation where it was possible for
+Aspell to have an actual “en” dictionary, which would be shown by
+enchant-lsmod(1), but when requesting that language, if Hunspell was
+configured to take precedence over Aspell, and there was, for example, an
+“en_US” dictionary installed for Hunspell, then that would be used. Thanks
+to @digitcrusher for filing the bug and helping with the solution.
+
+The providers code has been formatted more consistently, simplified in
+places, and made more robust when memory allocation fails. Thanks again to
+@digitcrusher for spotting some simplifications I missed.
+
+The minimum version of GLib required is now 2.76, which is quite recent
+(from a bit over 2 years ago at the time of writing). Use of this enables
+some deprecated APIs to be dropped, and some slight code simplification.
+
+Finally, the compiler warnings used with GCC have been adjusted to turn off
+useless warnings, especially for Vala-generated C.
+
+
+2.8.6 (May 30, 2025)
+--------------------
+
+This release fixes an internal bug where an ABI was incorrectly specified,
+causing errors on some systems, in particular big-endian ones. Thanks to
+Pranav P for the fix.
+
+The program tests (for enchant(1)) have been fixed to work on a wider
+range of systems and with more spelling providers.
+
+The Doxygen documentation has been updated.
+
+
+2.8.5 (May 25, 2025)
+--------------------
+
+This release fixes relocatability for BSDs (including macOS), and fixes the
+build system to make relocatability work better on Windows in some
+environments.
+
+The build system has been updated to detect MSVC’s C++11 support correctly.
+
+Some incorrect documentation was removed from enchant.h: Enchant does not
+automatically reject words containing non-letters not in the list returned
+by enchant_dict_get_extra_word_characters (though it is likely that most
+back-ends will consider them mis-spellings at best!).
+
+The enchant(1) program now has tests, and the error message when the command
+line is invalid has been improved.
+
+There are some minor improvements to the build system.
+
+
+2.8.4 (April 29, 2025)
+----------------------
+
+This release fixes a pair of bugs in the word division algorithm of
+enchant(1) introduced in the previous release, 2.8.3. Apologies for this bad
+bug.
+
+
+2.8.3 (April 28, 2025)
+----------------------
+
+This release marks Enchant’s move from the aegis of the defunct AbiWord to
+the personal care of Reuben Thomas, the current maintainer. Thanks to Hubert
+Figuière, Enchant’s previous steward, for allowing this move, which enables
+me (Reuben) to seek sponsorship for Enchant maintenance without confusion
+over the project’s affiliation.
+
+Code-wise, the two command-line utilities, enchant(1) and enchant-lsmod(1)
+have been rewritten in Vala. All of Enchant’s core is now written in Vala;
+the providers are still a polyglot of C, C++ and Objective C++.
+
+The AppleSpell provider was fixed to not crash when it is partially
+initialised, but initialisation ultimately fails, for example because a
+valid dictionary cannot be found. Thanks to Fredrik Larsson for the fix.
+
+Some minor fixes and improvements to the build system were made.
+
+Missing NEWS was added for release 2.8.2.
+
+
+2.8.2 (August 14, 2024)
+-----------------------
+
+This release prevents crashes in client applications that treat GLib
+critical warnings as fatal. This affected recent versions of Epiphany, for
+example. Enchant was misusing the GLib API g_return_val_if_fail in cases
+that did not necessarily indicate programmer error.
+
+
+2.8.1 (June 12, 2024)
+---------------------
+
+This release restores an optimization removed in 2.8.0 that reduces the
+frequency with which personal wordlists are reloaded. This optimization
+seemed to be unnecessary, as it had no effect on the test suite, but its
+removal caused a significant slow-down for real-world use. Apologies to
+those who are affected by this, and many thanks to the user who reported
+this problem.
+
+
+2.8.0 (May 26, 2024)
+--------------------
+
+This release adds the ability to use multiple dictionaries in the same
+spell-checking session. This can be useful for checking multilingual text in
+situations where passages or words cannot be marked as being in a particular
+language (for example, plain text or Markdown), and for specialised texts
+where a subject-specific dictionary is useful. The functionality is based on
+the Google Summer of Code “composite dictionary” project by Vidhoon
+Vishwanathan from 2013; a big thanks to him for his work! I have simplified
+his original design, and the implementation in Vala is entirely mine, so he
+is not to blame for any faults it may have in its current form.
+
+Multiple dictionaries are specified by a change to the dictionary tag
+format: most of Enchant’s APIs and its command-line front-end now accept a
+comma-separated list of tags. (This means of course that commas may no
+longer be used in dictionary tags; but until recently that was not allowed
+in any case.)
+
+A minor change has been made to an existing API: enchant_dict_suggest is now
+specified to return an empty list when there are no suggestions. This makes
+it easier to distinguish an error (when NULL is returned) from there simply
+being no suggestions. While this is formally an API change, I am not
+incrementing the major library version as in fact this API was already able
+to return an empty list; and in any case, callers were unlikely to rely on
+the list being non-empty.
+
+The Doxygen documentation has been greatly improved: documentation of
+internal code has been removed, while the public C and C++ header files are
+now clearly documented (in particular, the Doxygen documentation did not
+previously contain proper documentation for the C header file). The
+documentation of the C API has also been improved in several places.
+
+The test suite files have been renamed with shorter, less redundant names,
+to make them easier to navigate.
+
+Some minor improvements to and simplifications of the build system and code
+have also been made.
+
+
+2.7.3 (April 27, 2024)
+----------------------
+
+This release is made with Vala 0.56.17 (previous versions were made with
+0.56.0). This works around a bug in `valac` that generates code which causes
+an error in GCC >=14 and Clang >= 16.
+
+
+2.7.2 (April 27, 2024)
+----------------------
+
+This release fixes a bug introduced in version 2.7.0. when calling
+providers’ check methods, that could cause a crash.
+
+
+2.7.1 (April 25, 2024)
+----------------------
+
+This release fixes some build-system bugs that crept into 2.7.0. Thanks to
+those who reported them and helped me diagnose them. In particular, building
+without --enable-relocatable is fixed. Some minor long-standing bugs that
+recently came to light with incorrect include paths were also fixed.
+
+Detection of the user’s language has been updated to use a more modern and
+standard method. This means that in particular the LANG environment variable
+no longer overrides the LC_ALL and LC_MESSAGES environment variables, and
+support is added for the LANGUAGE variable, which has highest priority. For
+more details, see the documentation for the GLib function
+g_get_language_names.
+
+Minor code and documentation improvements were made.
+
+
+2.7.0 (April 19, 2024)
+----------------------
+
+This release marks a major improvement in Enchant’s maintainability: the
+main library has been translated into Vala, a modern object-oriented
+language with automatic memory management that, like Enchant, is based on
+GLib.
+
+Developers and packagers need not worry: this release is API and
+ABI-compatible with previous releases (with some minor changes, noted below,
+that is unrelated to the use of Vala), and you do not even need a Vala
+compiler to build it, thanks to Automake, which distributes the C source
+files generated by the Vala compiler. The build-time and run-time
+dependencies therefore remain unchanged.
+
+The library code is 33% smaller, and the total code-base has reduced
+by 12%. Thanks in particular to Vala’s more modern string and collection
+handling, I anticipate it being much easier to add functionality in future.
+The use of Vala may also be extended in future to those provider back-ends
+written in C.
+
+The provider API is now declared private. No third-party providers have been
+available for Enchant for many years to my knowledge, and the only new
+provider in the last ten years, Nuspell, was implemented by Nuspell’s
+authors in Enchant. The provider interface has changed in this release; and
+of course all the current providers have been updated, including the
+still-experimental Zemberek provider.
+
+There is a small change to the semantics of dictionaries: in the past,
+requesting a dictionary with the same language tag twice from a given
+provider returned the same dictionary object. This is no longer the case.
+This allows an application to have multiple active spelling sessions with
+the same broker object in any given language. Applications that relied on
+this functionality must in future keep track of the identity of spelling
+sessions themselves. I do not regard this as an API/ABI change, since it was
+only documented in a vague way by saying that dictionaries were
+“reference-counted”. This language has been removed from the documentation.
+
+Finally, a big thank-you to Eric Scott Albright, who wrote the test suite,
+and SIL, for funding his work. Enchant has an excellent test suite; one of
+my first contributions to the project was to get the test suite running on
+all platforms, as it was originally written just for Windows. It’s an
+impressive set of tests that covers a huge range of normal and edge cases,
+and has often saved me before now; but it has never been more valuable than
+when rewriting the entire core library. Hopefully it has kept the number of
+new bugs I’ve introduced to a minimum!
+
+
+2.6.9 (April 4, 2024)
+---------------------
+
+This release implements user dictionary support for Nuspell, Voikko and
+Hspell. Users can install dictionaries in the appropriate sub-directory of
+their Enchant user settings directory, and they will be found by the
+spelling providers. (Hunspell is already supported; Aspell support is
+planned.)
+
+
+2.6.8 (March 22, 2024)
+----------------------
+
+This release better documents the limited capabilities Enchant currently has
+for user-installed dictionaries.
+
+
+2.6.7 (February 8, 2024)
+------------------------
+
+This version fixes an error introduced in the previous version that caused
+the Hunspell provider to fail on startup. Apologies!
+
+
+2.6.6 (February 4, 2024)
+------------------------
+
+This version fixes the implementation and documentation of system paths for
+configuration files (enchant.ordering). Since version 2.6.4, the wrong path
+was searched for pkgdatadir: not, for example /usr/share/enchant-2, as
+documented, but the old path /usr/share/enchant. The enchant(5) man page
+referred to “DATADIR” rather than the actual configured path. The sysconfdir
+location, typically /etc, was not documented.
+
+Hunspell users should note that, contrary to the NEWS entry for 2.6.5, the
+DICPATH environment variable cannot be used to specify the location of
+hunspell dictionaries to Enchant. That is because it only works with the
+hunspell program (which Enchant does not use), not the hunspell library.
+
+Additional debug logging has been added for developers trying to diagnose
+problems with configuration files and providers, which can be enabled at
+run-time by setting the environment variable G_MESSAGES_DEBUG to
+‘libenchant’.
+
+
+2.6.5 (January 7, 2024)
+-----------------------
+
+This version permits error messages from spelling providers not to be valid
+UTF-8. This allows error messages in particular about invalid UTF-8
+characters in personal wordlists to be shown to the user. Developers take
+note!
+
+The --with-hunspell-dir configure option is removed (along with all the
+other ---with-PROVIDER-dir options, which did nothing). Users who have
+Hunspell dictionaries in non-standard locations should set the
+Hunspell-specific environment variable DICPATH, or copy the dictionaries
+into their user’s Enchant configuration directory (for example
+~/.config/enchant/hunspell).
+
+Doxygen API documentation is now included in the release tarball (it is also
+now available online).
+
+
+2.6.4 (December 11, 2023)
+-------------------------
+
+This version makes pkgdatadir versioned by default.
+
+
+2.6.3 (December 2, 2023)
+------------------------
+
+This version fixes a bug in the tests when pkgdatadir is set to a
+non-default value, and clarifies the documentation for setting pkgdatadir.
+
+
+2.6.2 (October 28, 2023)
+------------------------
+
+This version documents exclude files: each personal word list is paired with
+an exclude file that contains words the user considers invalid.
+
+
+2.6.1 (September 24, 2023)
+--------------------------
+
+This version tweaks normalization of language tags so that only the part of
+the tag that specifies country and language is altered; any extra that is
+not removed is left alone. This fixes the use case for Aspell dictionaries
+that was fixed in the Aspell backend in 2.6.0. Thanks again to Abdul-Lateef
+Haji-Ali for the report and help with the fix.
+
+
+2.6.0 (September 24, 2023)
+--------------------------
+
+This version removes validation of language tags; dictionary names no longer
+have to be valid language tags. This is because dictionaries in the wild
+sometimes are sometimes not named with valid tags, and so are not visible to
+Enchant. Programs that use Enchant will have to cope with this, for the
+purposes of working out which languages are supported; but it should not a
+big deal, as Enchant already accepted valid language tags with extra stuff
+on the end, such as “en_GB-ize”.
+
+Debug output now uses GLib’s debug system, and can be enabled at run-time by
+setting the environment variable G_MESSAGES_DEBUG to ‘libenchant’. If you
+have had problems understanding why Enchant is not using the spelling
+provider you expect, now’s the time to get in touch via the issue tracker
+and see if we can work out what’s going on!
+
+The Aspell back-end has a fix to let it work with language variants such as
+“en_GB-ize”. Thanks to Abdul-Lateef Haji-Ali for this fix!
+
+There’s more code clean-up, build system updates, and a couple of null
+pointer dereference fixes (thanks, GCC!).
+
+
+2.5.0 (May 23, 2023)
+--------------------
+
+This version simplifies the handling of personal wordlists. End-users should
+not notice much difference, but internally the code has been considerably
+simplified.
+
+There are three developer-visible changes:
+
+  * A new dictionary method remove_from_session() allows providers to stay
+    in sync with Enchant’s personal wordlist, by removing as well as adding
+    words in the spelling session.
+  * The public API enchant_dict_store_replacement() is deprecated, and no
+    longer does anything. It only previously had an effect with the Aspell
+    provider.
+  * The APIs enchant_dict_add() and enchant_dict_remove() also respectively
+    add the word to the session or remove it.
+
+Note that these changes do not affect the public ABI, which only uses
+pointers to dictionary objects (it does change the provider ABI, but as far
+as the maintainers know, there are no 3rd-party providers).
+
+There are three main changes under the hood.
+
+First, Enchant’s mechanism for generating suggestions from personal
+wordlists is removed. This mechanism was complicated, would generate
+suggestions in a different way from each provider, and was unlikely to work
+well for many languages. Instead, support has been improved for supplying
+words from the user’s personal wordlist to the provider, so that it can
+include them in suggestions. This is supported by the Aspell and Hunspell
+backends.
+
+Second, Enchant’s support for provider-specific wordlists has been removed.
+Of the known providers, only Aspell used this support, and only partially.
+This was likely to be confusing: for example, words could be added to the
+Aspell, but not removed, so Aspell’s personal wordlist could get out of sync
+with Enchant’s. The relevant dictionary methods have been removed.
+
+Finally, as mentioned above, adding a word to the personal wordlist also
+adds it to the session, and removing it also removes it from the session.
+This keeps the session and personal wordlist in sync automatically.
+
+
+2.4.0 (May 22, 2023)
+--------------------
+
+This version contains no user-visible changes.
+
+Add a new API enchant_broker_request_dict_with_pwl, so that it’s possible to
+specify a personal wordlist in a normal spelling session.
+
+This makes it possible to rewrite the enchant program to use only public
+APIs, thus making a cleaner separation between front-end and library.
+
+
+2.3.4 (February 19, 2023)
+-------------------------
+
+Document the personal wordlist format.
+
+Improve the man pages in various ways, and make online versions, now linked
+from the web site.
+
+Fix some potential crashes (double-free and NULL dereferences).
+
+Update the build system to use autoconf 2.71.
+
+
+2.3.3 (April 16, 2022)
+----------------------
+
+Update Nuspell provider, requiring Nuspell 5.1.0. The new provider takes
+advantage of recently-added Nuspell APIs to be smaller and simpler.
+
+Fix the C++ API is_added() method to return a boolean rather than void.
+
+Require C99 and POSIX 2008, and as a result use fewer gnulib modules,
+which gives a modest build time reduction.
+
+
+2.3.2 (November 16, 2021)
+-------------------------
+
+Fix the generation of man pages, so that installation-dependent paths are
+correctly inserted.
+
+Improve error reporting when enchant-lsmod cannot open a dictionary for a
+given language, in particular with the Aspell backend.
+
+Fix compilation on MingW.
+
+Some minor code cleanup.
+
+
+2.3.1 (August 9, 2021)
+----------------------
+
+Hunspell: fix enchant_dict_get_extra_word_characters API so it always
+returns UTF-8. Use the same limit on word length as Hunspell uses (it is
+different for UTF-8). Drop support for Hunspell 1.4.
+
+Ignore hidden files when loading provider modules.
+
+In a slight update to a change introduced in 2.3.0, in the default
+enchant.ordering file, do not prefer aspell for all “en” locales, only for
+the specific “en” locales that it supports.
+
+
+2.3.0 (June 14, 2021)
+---------------------
+
+Add -p flag to enchant.
+
+Allow personal wordlist APIs (enchant_pwl_*) to take -1 as the length of the
+word, as the enchant_dict_* APIs already allowed.
+
+Add documentation to enchant_provider.h.
+
+Make Aspell the default backend for English locales it supports, as it is
+much quicker than Hunspell in this case and achieves slightly better
+results.
+
+Require nuspell version 4.1.0 or later.
+
+
+2.2.15 (December 22, 2020)
+--------------------------
+
+Specify that nuspell >= 4.1.0 is required.
+
+Fix some space leaks in the tests.
+
+
+2.2.14 (December 10, 2020)
+--------------------------
+
+Improve installation instructions: in particular, add a note about where to
+find them to README.
+
+The nuspell backend is updated for newer versions.
+
+
+2.2.13 (November 2, 2020)
+-------------------------
+
+Make the enchant program output its version to standard output, not standard
+error. This may help some programs that use this output.
+
+
+2.2.12 (October 15, 2020)
+-------------------------
+
+Fix a bug in the Voikko and Zemberek back-ends that could cause spell
+checking and suggestion to fail. (For programmers: enchant_dict_check and
+enchant_dict_suggest allow counted strings, but those two backends were
+assuming the strings were NUL-terminated.)
+
+
+2.2.11 (September 7, 2020)
+--------------------------
+
+Make enchant silently ignore -B flag, for better Emacs compatibility.
+
+Make enchant_broker_list_dicts sort the tags, so that enchant-lsmod’s output
+is sorted.
+
+Minor build system improvement: don’t use -D_FORTIFY_SOURCE, which can cause
+problems on Windows, and should be configured by the compiler vendor if
+desired.
+
+
+2.2.10 (September 1, 2020)
+--------------------------
+
+Fix Hunspell backend to treat apostrophes as Hunspell does: if either
+straight or curly apostrophe is a word character, allow both.
+
+
+2.2.9 (July 29, 2020)
+---------------------
+
+Fix a couple of space leaks in the Nuspell back end (thanks, ASAN).
+
+
 2.2.8 (February 27, 2020)
 -------------------------
 
@@ -233,5 +855,3 @@ Aspell/Pspell support
 Ispell support
 Uspell support
 Ability to order dictionaries/providers
-
-

@@ -1,5 +1,8 @@
-libenchant -- Generic spell checking library
-Original author: Dom Lachowicz
+# libenchant -- Generic spell checking library
+
+Maintainer: Reuben Thomas  
+Home page: https://rrthomas.github.io/enchant/  
+Bug reports and other issues: https://github.com/rrthomas/enchant  
 
 libenchant is licensed under the terms of the GNU LGPL (see the file
 COPYING.LIB), with a special exception allowing the use of proprietary
@@ -14,78 +17,37 @@ be added without needing any change to the program using Enchant.
 Enchant can be configured by the user, who can even add spell-checker
 plugins if desired.
 
-Enchant currently works with the following spell-checkers:
+Enchant works with the following spell-checkers:
 
-    * Hunspell (formerly Myspell)
-    * Nuspell
-    * GNU Aspell
-    * Hspell
-    * Voikko
-    * Apple Spell (macOS only)
-    * Zemberek
+* Hunspell (formerly Myspell)
+* Nuspell
+* GNU Aspell
+* Hspell
+* Voikko
+* Apple Spell (macOS only)
+* Zemberek
 
-Enchant is written in C and C++, and its only external dependency is glib.
+Enchant is written in Vala, C and C++, and its only external dependency is
+Glib. C and C++ compilers are required to build it.
 
-Enchant bindings are supplied for C and C++; there are third-party bindings
-for:
-
-Python: https://github.com/rfk/pyenchant/
-Ruby: https://github.com/pennyapp/ruby-enchant
-Go: https://github.com/hermanschaaf/enchant
-Common Lisp: https://github.com/tlikonen/cl-enchant
+Enchant bindings are supplied for C and C++. API documentation is available
+in the doxygen/html directory, or online (see the home page). There are
+third-party bindings for various languages (see the home page).
 
 
-Sharing personal word lists between spell-checkers
---------------------------------------------------
+## Installation
 
-It is possible, and usually safe, to share Enchant’s personal word lists
-with other spelling checkers that use the same format (a simple plain text
-file with one word per line). The spell-checkers known to be compatible are
-Hunspell, Nuspell and Ispell. (Although Enchant does not support Ispell as a
-back-end, it’s still fine to share word lists with it.) Other spell-checkers
-supported by Enchant are either incompatible, or have no personal word list
-mechanism. There may well be yet other spell-checkers, unknown to Enchant,
-that use the same format.
+Users should install from a release tarball. See the file INSTALL for
+instructions.
 
-Some applications use Hunspell or Nuspell, but store the personal word list
-under another name or in another location. Firefox is one example. Firefox
-also seems to reorder its word list when updating it; again, this is OK, as
-the result is still in the same format. Anonther example is Thunderbird.
-
-To share word lists with Enchant, find the other spelling checker’s word
-list file, e.g. ~/.hunspell_fr_FR or ~/.config/nuspell/fr_FR, and merge it
-with the corresponding Enchant file, in this case ~/.config/enchant/fr_FR.dic
-(on a GNU or BSD system). Use the following command, replacing ENCHANT-DICT
-and OTHER-DICT with the corresponding dictionary file names:
-
-cat ENCHANT-DICT OTHER-DICT | sort -u > merged.txt
-
-Take a look at merged.txt to check the merge has worked, then
-
-mv merged.txt ENCHANT-DICT
-rm OTHER-DICT
-ln -s OTHER-DICT ENCHANT-DICT
-
-to replace the other dictionary file with a link to the Enchant dictionary,
-again filling in the name of the dictionary files.
+Developers or others wishing to install from a git repository, see HACKING.
 
 
-Bug reports and development
----------------------------
+## Usage
 
-To report libenchant bugs or request features, please visit
-https://github.com/AbiWord/enchant
+See the man pages for information on how to use Enchant. In particular,
+information about how to configure which spelling checker to use for each
+language and how to work with personal word lists is in the man page
+enchant(5). To see this man page, in a terminal, give the command:
 
-If you can't use GitHub, you can use the (low-traffic) AbiWord-devel list.
-To subscribe send a mail to:
-
-	abiword-dev-request@abisource.com
-
-and in the body of the message write "subscribe"
-
-An archive of the mailing lists is available at:
-
-	http://www.abisource.com/mailinglists/abiword-dev/
-
-
-Enchant has taken insight from GNU Aspell: http://aspell.net
+    man 5 enchant

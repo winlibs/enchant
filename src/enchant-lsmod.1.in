@@ -1,6 +1,18 @@
+\" Enchant-lsmod man page
+\"
+\" Copyright (C) 2017-2023 Reuben Thomas
+\"
+\" This library is distributed in the hope that it will be useful,
+\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+\" Lesser General Public License for more details.
+\"
+\" You should have received a copy of the GNU Lesser General Public License
+\" along with this program; if not, see <https://www.gnu.org/licenses/>.
+\"
 .TH ENCHANT-LSMOD-@ENCHANT_MAJOR_VERSION@ 1 "August 2017"
 .SH NAME
-Enchant \- list provider and dictionary information
+enchant-lsmod \- list provider and dictionary information
 .SH SYNOPSIS
 .ll +8
 .B enchant-lsmod-@ENCHANT_MAJOR_VERSION@
@@ -9,8 +21,8 @@ Enchant \- list provider and dictionary information
 .br
 .SH DESCRIPTION
 .B enchant-lsmod-@ENCHANT_MAJOR_VERSION@
-gives information about Enchant's spell-checker providers and the dictionaries each offers.
-See \fBenchant-@ENCHANT_MAJOR_VERSION@\fR(1) for details about how the providers and dictionaries are located.
+gives information about Enchant\(cqs spell-checker providers and the dictionaries each offers.
+See \fBenchant\fR(5) for details about how the providers and dictionaries are located.
 If no command-line options are given, the available providers are listed.
 .SS OPTIONS
 .TP
@@ -27,8 +39,8 @@ List the provider and dictionary for all available languages.
 Show brief help.
 .TP
 .B "\-version"
-Prints the program's version.
+Prints the program\(cqs version.
 .SH "SEE ALSO"
-.BR enchant-@ENCHANT_MAJOR_VERSION@(1)
+.BR enchant (5)
 .SH "AUTHOR"
 Written by Dom Lachowicz and Reuben Thomas.

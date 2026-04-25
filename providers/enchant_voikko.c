@@ -2,6 +2,7 @@
  * Copyright (C) 2003,2004 Dom Lachowicz
  *               2006-2007 Harri Pitkänen <hatapitk@iki.fi>
  *               2006 Anssi Hannula <anssi.hannula@gmail.com>
+ *               2017-2025 Reuben Thomas
  *               2017 Børre Gaup <borre.gaup@uit.no>
  *
  * This library is free software; you can redistribute it and/or
@@ -11,16 +12,15 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along along with this program; if not, see
+ * <https://www.gnu.org/licenses/>.
  *
- * In addition, as a special exception, Dom Lachowicz
- * gives permission to link the code of this program with
+ * In addition, as a special exception, the copyright holders
+ * give permission to link the code of this program with
  * non-LGPL Spelling Provider libraries (eg: a MSFT Office
  * spell checker backend) and distribute linked combinations including
  * the two.  You must obey the GNU Lesser General Public License in all
@@ -36,21 +36,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <glib.h>
 #include <libvoikko/voikko.h>
-#include "unused-parameter.h"
 
 #include "enchant-provider.h"
 
 /**
  * Voikko is a spell checker for VFST and HFST format dictionaries. More information is available from:
  *
- * http://voikko.sourceforge.net/
+ * https://voikko.sourceforge.net/
  */
 
+static EnchantProvider *provider;
+
 static int
-voikko_dict_check (EnchantDict * me, const char *const word, size_t len _GL_UNUSED_PARAMETER)
+voikko_dict_check (EnchantProviderDict * me, const char *const word, size_t len)
 {
-	int result = voikkoSpellCstr((struct VoikkoHandle *)me->user_data, word);
+	char *word_nul = g_strndup(word, len);
+	int result = voikkoSpellCstr((struct VoikkoHandle *)me->user_data, word_nul);
+	free(word_nul);
 	if (result == VOIKKO_SPELL_FAILED)
 		return 1;
 	else if (result == VOIKKO_SPELL_OK)
@@ -60,88 +64,92 @@ voikko_dict_check (EnchantDict * me, const char *const word, size_t len _GL_UNUS
 }
 
 static char **
-voikko_dict_suggest (EnchantDict * me, const char *const word,
-		     size_t len _GL_UNUSED_PARAMETER, size_t * out_n_suggs)
+voikko_dict_suggest (EnchantProviderDict * me, const char *const word,
+		     size_t len, size_t * out_n_suggs)
 {
-	char **voikko_sugg_arr = voikkoSuggestCstr((struct VoikkoHandle *)me->user_data, word);
+	char *word_nul = g_strndup(word, len);
+	char **voikko_sugg_arr = voikkoSuggestCstr((struct VoikkoHandle *)me->user_data, word_nul);
+	free(word_nul);
 	if (voikko_sugg_arr == NULL)
 		return NULL;
-	for (*out_n_suggs = 0; voikko_sugg_arr[*out_n_suggs] != NULL; (*out_n_suggs)++);
+	for (*out_n_suggs = 0; voikko_sugg_arr[*out_n_suggs] != NULL; (*out_n_suggs)++)
+		;
 
-	char **sugg_arr = calloc(sizeof (char *), *out_n_suggs + 1);
-	for (size_t i = 0; i < *out_n_suggs; i++) {
-		sugg_arr[i] = strdup (voikko_sugg_arr[i]);
-	}
+	char **sugg_arr = g_new0(char *, *out_n_suggs + 1);
+	if (sugg_arr)
+		for (size_t i = 0; i < *out_n_suggs; i++)
+			sugg_arr[i] = strdup (voikko_sugg_arr[i]);
+	else
+		*out_n_suggs = 0;
 	voikkoFreeCstrArray (voikko_sugg_arr);
 	return sugg_arr;
 }
 
 static void
-voikko_provider_dispose_dict (EnchantProvider * me _GL_UNUSED_PARAMETER, EnchantDict * dict)
+voikko_provider_dispose_dict (EnchantProvider * me _GL_UNUSED, EnchantProviderDict * dict)
 {
 	voikkoTerminate((struct VoikkoHandle *)dict->user_data);
-	free (dict);
 }
 
 static char **
-voikko_provider_list_dicts (EnchantProvider * me _GL_UNUSED_PARAMETER,
-			    size_t * out_n_dicts)
+voikko_provider_list_dicts (EnchantProvider * me, size_t * out_n_dicts)
 {
-	size_t i;
-	char ** out_list = NULL;
 	*out_n_dicts = 0;
-	char ** voikko_langs = voikkoListSupportedSpellingLanguages (NULL);
+	char * user_dict_dir = enchant_provider_get_user_dict_dir (me);
+	char ** voikko_langs = voikkoListSupportedSpellingLanguages (user_dict_dir);
+	g_free (user_dict_dir);
 
-	for (i = 0; voikko_langs[i] != NULL; i++) {
+	for (size_t i = 0; voikko_langs[i] != NULL; i++)
 		(*out_n_dicts)++;
-	}
 
-	if (*out_n_dicts) {
-		out_list = calloc (*out_n_dicts + 1, sizeof (char *));
-		for (i = 0; i < *out_n_dicts; i++) {
+	char ** out_list = g_new0 (char *, *out_n_dicts + 1);
+	if (out_list)
+		for (size_t i = 0; i < *out_n_dicts; i++)
 			out_list[i] = strdup (voikko_langs[i]);
-		}
-	}
+	else
+		*out_n_dicts = 0;
 	voikkoFreeCstrArray(voikko_langs);
-
 	return out_list;
 }
 
 static int
-voikko_provider_dictionary_exists (struct str_enchant_provider * me _GL_UNUSED_PARAMETER,
-                                   const char *const tag)
+voikko_provider_dictionary_exists (EnchantProvider * me,
+				   const char *const tag)
 {
-	size_t i;
-	int exists = 0;
-	char ** voikko_langs = voikkoListSupportedSpellingLanguages (NULL);
+	char * user_dict_dir = enchant_provider_get_user_dict_dir (me);
+	char ** voikko_langs = voikkoListSupportedSpellingLanguages (user_dict_dir);
+	g_free (user_dict_dir);
 
-	for (i = 0; voikko_langs[i] != NULL; i++) {
+	int exists = 0;
+	for (size_t i = 0; voikko_langs[i] != NULL; i++)
 		if (strncmp (tag, voikko_langs[i], strlen (tag)) == 0) {
 			exists = 1;
 			break;
 		}
-	}
 	voikkoFreeCstrArray(voikko_langs);
 
 	return exists;
 }
 
-static EnchantDict *
+static EnchantProviderDict *
 voikko_provider_request_dict (EnchantProvider * me, const char *const tag)
 {
 	const char * voikko_error;
 
-	if (!voikko_provider_dictionary_exists (NULL, tag)) {
+	if (!voikko_provider_dictionary_exists (me, tag))
 		return NULL;
-	}
 
-	struct VoikkoHandle *voikko_handle = voikkoInit (&voikko_error, tag, NULL);
+	char * user_dict_dir = enchant_provider_get_user_dict_dir (me);
+	struct VoikkoHandle *voikko_handle = voikkoInit (&voikko_error, tag, user_dict_dir);
+	g_free (user_dict_dir);
 	if (voikko_handle == NULL) {
 		enchant_provider_set_error (me, voikko_error);
 		return NULL;
 	}
 
-	EnchantDict *dict = calloc (sizeof (EnchantDict), 1);
+	EnchantProviderDict *dict = enchant_provider_dict_new (provider, tag);
+	if (dict == NULL)
+		return NULL;
 	dict->user_data = (void *)voikko_handle;
 	dict->check = voikko_dict_check;
 	dict->suggest = voikko_dict_suggest;
@@ -149,22 +157,22 @@ voikko_provider_request_dict (EnchantProvider * me, const char *const tag)
 	return dict;
 }
 
-static void
-voikko_provider_dispose (EnchantProvider * me)
-{
-	free (me);
-}
-
 static const char *
-voikko_provider_identify (EnchantProvider * me _GL_UNUSED_PARAMETER)
+voikko_provider_identify (EnchantProvider * me _GL_UNUSED)
 {
 	return "voikko";
 }
 
 static const char *
-voikko_provider_describe (EnchantProvider * me _GL_UNUSED_PARAMETER)
+voikko_provider_describe (EnchantProvider * me _GL_UNUSED)
 {
 	return "Voikko Provider";
+}
+
+static void
+voikko_provider_dispose (EnchantProvider * me _GL_UNUSED)
+{
+	provider = NULL;
 }
 
 EnchantProvider *init_enchant_provider (void);
@@ -172,7 +180,9 @@ EnchantProvider *init_enchant_provider (void);
 EnchantProvider *
 init_enchant_provider (void)
 {
-	EnchantProvider *provider = calloc (sizeof (EnchantProvider), 1);
+	provider = enchant_provider_new ();
+	if (provider == NULL)
+		return NULL;
 	provider->dispose = voikko_provider_dispose;
 	provider->request_dict = voikko_provider_request_dict;
 	provider->dispose_dict = voikko_provider_dispose_dict;

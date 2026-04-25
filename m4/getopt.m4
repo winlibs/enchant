@@ -1,8 +1,10 @@
-# getopt.m4 serial 46
-dnl Copyright (C) 2002-2006, 2008-2018 Free Software Foundation, Inc.
+# getopt.m4
+# serial 50
+dnl Copyright (C) 2002-2006, 2008-2025 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 # Request a POSIX compliant getopt function.
 AC_DEFUN([gl_FUNC_GETOPT_POSIX],
@@ -21,6 +23,8 @@ AC_DEFUN([gl_FUNC_GETOPT_POSIX],
       REPLACE_GETOPT=1
     fi
   ])
+  GL_GENERATE_GETOPT_H=false
+  GL_GENERATE_GETOPT_CDEFS_H=false
   if test $REPLACE_GETOPT = 1; then
     dnl Arrange for getopt.h to be created.
     gl_GETOPT_SUBSTITUTE_HEADER
@@ -74,7 +78,7 @@ AC_DEFUN([gl_GETOPT_CHECK_HEADERS],
   fi
 
   dnl POSIX 2008 does not specify leading '+' behavior, but see
-  dnl http://austingroupbugs.net/view.php?id=191 for a recommendation on
+  dnl https://austingroupbugs.net/view.php?id=191 for a recommendation on
   dnl the next version of POSIX.  For now, we only guarantee leading '+'
   dnl behavior with getopt-gnu.
   if test -z "$gl_replace_getopt"; then
@@ -195,8 +199,8 @@ main ()
           fi
         else
           case "$host_os" in
-            darwin* | aix* | mingw*) gl_cv_func_getopt_posix="guessing no";;
-            *)                       gl_cv_func_getopt_posix="guessing yes";;
+            darwin* | aix* | mingw* | windows*) gl_cv_func_getopt_posix="guessing no";;
+            *)                                  gl_cv_func_getopt_posix="guessing yes";;
           esac
         fi
       ])
@@ -302,8 +306,10 @@ dnl is ambiguous with environment values that contain newlines.
            ]])],
         [gl_cv_func_getopt_gnu=yes],
         [gl_cv_func_getopt_gnu=no],
-        [dnl Cross compiling. Assume the worst, even on glibc platforms.
-         gl_cv_func_getopt_gnu="guessing no"
+        [dnl Cross compiling.
+         dnl Assume the worst, even on glibc platforms.
+         dnl But obey --enable-cross-guesses.
+         gl_cv_func_getopt_gnu="$gl_cross_guess_normal"
         ])
        case $gl_had_POSIXLY_CORRECT in
          exported) ;;
@@ -361,19 +367,10 @@ dnl is ambiguous with environment values that contain newlines.
 
 AC_DEFUN([gl_GETOPT_SUBSTITUTE_HEADER],
 [
-  AC_CHECK_HEADERS_ONCE([sys/cdefs.h])
-  if test $ac_cv_header_sys_cdefs_h = yes; then
-    HAVE_SYS_CDEFS_H=1
-  else
-    HAVE_SYS_CDEFS_H=0
-  fi
-  AC_SUBST([HAVE_SYS_CDEFS_H])
-
+  gl_CHECK_HEADER_SYS_CDEFS_H
   AC_DEFINE([__GETOPT_PREFIX], [[rpl_]],
     [Define to rpl_ if the getopt replacement functions and variables
      should be used.])
-  GETOPT_H=getopt.h
-  GETOPT_CDEFS_H=getopt-cdefs.h
-  AC_SUBST([GETOPT_H])
-  AC_SUBST([GETOPT_CDEFS_H])
+  GL_GENERATE_GETOPT_H=true
+  GL_GENERATE_GETOPT_CDEFS_H=true
 ])
