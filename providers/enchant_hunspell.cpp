@@ -223,6 +223,14 @@ s_buildDictionaryDirs (EnchantProvider * me, std::vector<std::string> & dirs)
 		dirs.push_back (tmp);
 		g_free(tmp);
 	}
+
+	char *prefix = enchant_get_prefix_dir ();
+	if (prefix) {
+		tmp = g_build_filename (prefix, "share", "enchant", me->identify (me), nullptr);
+		dirs.push_back (tmp);
+		g_free(tmp);
+		g_free(prefix);
+	}
 }
 
 static const std::string
@@ -237,6 +245,26 @@ static bool
 s_fileExists(const std::string & file)
 {
 	return g_file_test(file.c_str(), G_FILE_TEST_EXISTS) != 0;
+}
+
+static bool
+is_plausible_dict_for_tag(const char *dir_entry, const char *tag)
+{
+	size_t dic_suffix_len = strlen(DIC_SUFFIX);
+	size_t dir_entry_len = strlen(dir_entry);
+	size_t tag_len = strlen(tag);
+
+	if (dir_entry_len <= dic_suffix_len)
+		return false;
+	if (dir_entry_len - dic_suffix_len < tag_len)
+		return false;
+	if (strcmp(dir_entry + dir_entry_len - dic_suffix_len, DIC_SUFFIX) != 0)
+		return false;
+	if (strncmp(dir_entry, tag, tag_len) != 0)
+		return false;
+	if (dir_entry_len - dic_suffix_len == tag_len)
+		return true;
+	return g_ascii_ispunct(dir_entry[tag_len]);
 }
 
 static char *
@@ -254,6 +282,25 @@ hunspell_find_dictionary (EnchantProvider * me, const char * tag)
                 g_free(filename);
         }
 
+	for (size_t i = 0; i < dirs.size(); i++) {
+		GDir *dir = g_dir_open (dirs[i].c_str(), 0, nullptr);
+		if (dir) {
+			const char *dir_entry;
+			while ((dir_entry = g_dir_read_name (dir)) != NULL) {
+				if (is_plausible_dict_for_tag(dir_entry, tag)) {
+					char *filename = g_build_filename(dirs[i].c_str(), dir_entry, nullptr);
+					if (filename && s_fileExists(s_correspondingAffFile(filename))) {
+						g_dir_close (dir);
+						return filename;
+					}
+					g_free(filename);
+				}
+			}
+
+			g_dir_close (dir);
+		}
+	}
+
 	return nullptr;
 }
 
@@ -268,10 +315,10 @@ HunspellChecker::requestDictionary(const char *szLang)
                 delete hunspell;
                 free(wordchars);
                 wordchars = NULL;
-        }
+	}
 	std::string aff(s_correspondingAffFile(dic));
         hunspell = new Hunspell(aff.c_str(), dic);
-	free(dic);
+	g_free(dic);
 	if(hunspell == NULL)
 		return false;
 	const char *enc = hunspell->get_dic_encoding();
@@ -438,7 +485,13 @@ static int
 hunspell_provider_dictionary_exists (EnchantProvider * me,
 				     const char *const tag)
 {
-	return hunspell_find_dictionary(me, tag) != NULL;
+	char *filename = hunspell_find_dictionary(me, tag);
+	if (filename) {
+		g_free(filename);
+		return 1;
+	}
+
+	return 0;
 }
 
 static const char *
@@ -459,6 +512,7 @@ hunspell_provider_dispose (EnchantProvider * me _GL_UNUSED)
 	provider = NULL;
 }
 
+ENCHANT_MODULE_EXPORT
 EnchantProvider *init_enchant_provider (void);
 
 EnchantProvider *
