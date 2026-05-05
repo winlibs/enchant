@@ -1464,7 +1464,7 @@ tokenize_line (EnchantDict* dict,
 #line 191 "enchant.vala"
 					_g_string_free0 (word);
 #line 191 "enchant.vala"
-					break;
+					continue;
 #line 1469 "enchant.c"
 				}
 #line 195 "enchant.vala"

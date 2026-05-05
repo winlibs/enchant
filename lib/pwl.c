@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <sys/file.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib-object.h>
@@ -304,7 +305,9 @@ lock_file (FILE* f)
 {
 #line 43 "pwl.vala"
 	g_return_if_fail (f != NULL);
-#line 309 "pwl.c"
+#line 44 "pwl.vala"
+	flock (fileno (f), LOCK_EX);
+#line 311 "pwl.c"
 }
 
 void
@@ -312,7 +315,9 @@ unlock_file (FILE* f)
 {
 #line 47 "pwl.vala"
 	g_return_if_fail (f != NULL);
-#line 318 "pwl.c"
+#line 48 "pwl.vala"
+	flock (fileno (f), LOCK_UN);
+#line 321 "pwl.c"
 }
 
 static gunichar
@@ -2530,3 +2535,4 @@ enchant_pwl_dict_get_type (void)
 	}
 	return enchant_pwl_dict_type_id__once;
 }
+

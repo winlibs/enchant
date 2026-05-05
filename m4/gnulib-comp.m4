@@ -143,9 +143,6 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([relocatable])
   fi
   gl_LIBDL
-  if test "$LIBDL" = ""; then
-     AC_DEFINE([_GL_DLADDR_IN_LIBC], 1, [Define to 1 if dladdr is in libc.])
-  fi
   gt_TYPE_SSIZE_T
   gl_STDDEF_H
   gl_STDDEF_H_REQUIRE_DEFAULTS

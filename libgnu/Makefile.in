@@ -824,7 +824,7 @@ libgnu_la_CFLAGS = $(AM_CFLAGS) $(GL_CFLAG_GNULIB_WARNINGS) $(GL_CFLAG_ALLOW_WAR
 libgnu_la_LIBADD = $(gl_libgnu_LTLIBOBJS)
 libgnu_la_DEPENDENCIES = $(gl_libgnu_LTLIBOBJS)
 EXTRA_libgnu_la_SOURCES = relocatable.c
-libgnu_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(LTLIBINTL)
+libgnu_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(LTLIBINTL) $(LIBDL)
 
 # Use this preprocessor expression to decide whether #include_next works.
 # Do not rely on a 'configure'-time test for this, since the expression

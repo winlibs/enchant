@@ -349,6 +349,7 @@ EXTRA_DIST += $(top_srcdir)/build-aux/options-parser
 ## begin gnulib module relocatable-lib-lgpl
 
 DEFS += -DNO_XMALLOC
+libgnu_la_LDFLAGS += $(LIBDL)
 
 EXTRA_DIST += relocatable.c relocatable.h relocatable.valgrind
 

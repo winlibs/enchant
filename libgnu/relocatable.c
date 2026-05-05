@@ -81,7 +81,7 @@
 #define _GL_USE_PROCFS 1
 #elif (defined _WIN32 && !defined __CYGWIN__) || defined __EMX__
 #define _GL_USE_WIN32 1
-#elif _GL_DLADDR_IN_LIBC
+#else
 #define _GL_USE_DLADDR 1
 #include <dlfcn.h>
 #endif
@@ -417,9 +417,7 @@ static void
 find_shared_library_fullname ()
 {
 #if _GL_USE_PROCFS
-  /* Linux has /proc/self/maps. glibc 2 and uClibc have the getline()
-     function.
-     But it is costly: ca. 0.3 ms.  */
+  /* Linux has /proc/self/maps.  But it is costly: ca. 0.3 ms.  */
   FILE *fp;
 
   /* Open the current process' maps file.  It describes one VMA per line.  */
@@ -472,9 +470,7 @@ find_shared_library_fullname ()
 #endif /* Native Windows / EMX / Unix */
 
 /* Return the full pathname of the current shared library.
-   Return NULL if unknown.
-   Guaranteed to work only on Linux, EMX, Cygwin, native Windows, and
-   systems with dladdr in libc.  */
+   Return NULL if unknown.  */
 static char *
 get_shared_library_fullname ()
 {
