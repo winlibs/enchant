@@ -64,6 +64,7 @@ char *enchant_get_user_language(void);
  *
  * The returned string must be g_free'd.
  */
+ENCHANT_MODULE_EXPORT
 char *enchant_get_user_config_dir (void);
 
 /**
@@ -101,6 +102,7 @@ GSList *enchant_get_conf_dirs (void);
  *
  * The return value must be free'd.
  */
+ENCHANT_MODULE_EXPORT
 char *enchant_get_prefix_dir(void);
 
 /**
