@@ -34,6 +34,10 @@
 
 #include "config.h"
 
+#ifdef _WIN32
+#include "configmake.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -224,13 +228,11 @@ s_buildDictionaryDirs (EnchantProvider * me, std::vector<std::string> & dirs)
 		g_free(tmp);
 	}
 
-	char *prefix = enchant_get_prefix_dir ();
-	if (prefix) {
-		tmp = g_build_filename (prefix, "share", "enchant", me->identify (me), nullptr);
-		dirs.push_back (tmp);
-		g_free(tmp);
-		g_free(prefix);
-	}
+#ifdef _WIN32
+	tmp = g_build_filename (PKGDATADIR, me->identify (me), nullptr);
+	dirs.push_back (tmp);
+	g_free(tmp);
+#endif
 }
 
 static const std::string
