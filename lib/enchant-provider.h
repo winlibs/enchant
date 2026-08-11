@@ -64,7 +64,6 @@ char *enchant_get_user_language(void);
  *
  * The returned string must be g_free'd.
  */
-ENCHANT_MODULE_EXPORT
 char *enchant_get_user_config_dir (void);
 
 /**
@@ -91,19 +90,6 @@ char *enchant_provider_get_user_dict_dir (EnchantProvider * provider);
  *     enchant_get_user_config_dir(), if it exists.
  */
 GSList *enchant_get_conf_dirs (void);
-
-/**
- * enchant_get_prefix_dir
- *
- * Returns a string giving the location of the base directory of the enchant
- * installation. This corresponds roughly to the --prefix option given to
- * ./configure when enchant is compiled, except it is determined at runtime
- * based on the location of the enchant library.
- *
- * The return value must be free'd.
- */
-ENCHANT_MODULE_EXPORT
-char *enchant_get_prefix_dir(void);
 
 /**
  * enchant_relocate

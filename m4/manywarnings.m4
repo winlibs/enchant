@@ -1,6 +1,6 @@
 # manywarnings.m4
-# serial 29
-dnl Copyright (C) 2008-2025 Free Software Foundation, Inc.
+# serial 36
+dnl Copyright (C) 2008-2026 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -97,7 +97,8 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
   # export LC_ALL=C && comm -3 \
   #  <((sed -n 's/^  *\(-[^ 0-9][^ ]*\).*/\1/p' manywarnings.m4; \
   #     awk '/^[^#]/ {print $1}' ../build-aux/gcc-warning.spec) | sort) \
-  #  <(gcc --help=warnings | sed -n 's/^  \(-[^ ]*\) .*/\1/p' | sort)
+  #  <((gcc -Q --help=c,warnings && gcc -Q --help=common,warnings) \
+  #    | sed -n '/\[ignored]$/d;s/^  \(-[^ ]*\) .*/\1/p' | sort)
 
   $1=
   for gl_manywarn_item in -fanalyzer -fstrict-flex-arrays \
@@ -110,11 +111,13 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
     -Wduplicated-branches \
     -Wduplicated-cond \
     -Wextra \
-    -Wformat-signedness \
     -Wflex-array-member-not-at-end \
+    -Wformat-signedness \
+    -Wfree-labels \
     -Winit-self \
     -Winline \
     -Winvalid-pch \
+    -Wkeyword-macro \
     -Wlogical-op \
     -Wmissing-declarations \
     -Wmissing-include-dirs \
@@ -130,7 +133,6 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
     -Wshadow \
     -Wstack-protector \
     -Wstrict-flex-arrays \
-    -Wstrict-overflow \
     -Wstrict-prototypes \
     -Wsuggest-attribute=cold \
     -Wsuggest-attribute=const \
@@ -138,19 +140,15 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
     -Wsuggest-attribute=malloc \
     -Wsuggest-attribute=noreturn \
     -Wsuggest-attribute=pure \
-    -Wsuggest-final-methods \
-    -Wsuggest-final-types \
     -Wsync-nand \
     -Wtrampolines \
     -Wuninitialized \
     -Wunknown-pragmas \
-    -Wunsafe-loop-optimizations \
     -Wunused-macros \
     -Wvariadic-macros \
     -Wvector-operation-performance \
     -Wvla \
     -Wwrite-strings \
-    \
     ; do
     AS_VAR_APPEND([$1], [" $gl_manywarn_item"])
   done
@@ -165,28 +163,64 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
   AS_VAR_APPEND([$1], [' -Wformat-truncation=2'])
   AS_VAR_APPEND([$1], [' -Wimplicit-fallthrough=5'])
   AS_VAR_APPEND([$1], [' -Wshift-overflow=2'])
+  AS_VAR_APPEND([$1], [' -Wstringop-overflow=4'])
   AS_VAR_APPEND([$1], [' -Wuse-after-free=3'])
   AS_VAR_APPEND([$1], [' -Wunused-const-variable=2'])
   AS_VAR_APPEND([$1], [' -Wvla-larger-than=4031'])
 
-  # These are needed for older GCC versions.
-  if test -n "$GCC" && gl_gcc_version=`($CC --version) 2>/dev/null`; then
+  # These depend on the GCC version.
+  if test -n "$GCC" \
+     && gl_gcc_version=`($CC --version) 2>/dev/null | sed 1q`; then
     case $gl_gcc_version in
-      'gcc (GCC) '[[0-3]].* | \
-      'gcc (GCC) '4.[[0-7]].*)
+      *gcc*' ('*') '[[0-3]].* | \
+      *gcc*' ('*') '4.[[0-7]].*)
         AS_VAR_APPEND([$1], [' -fdiagnostics-show-option'])
         AS_VAR_APPEND([$1], [' -funit-at-a-time'])
-          ;;
+        ;;
     esac
     case $gl_gcc_version in
-      'gcc (GCC) '[[0-9]].*)
+      *gcc*' ('*') '[[0-9]].*)
+        # In GCC >= 10 this option is no longer needed, as it is
+        # enabled by default.
         AS_VAR_APPEND([$1], [' -fno-common'])
-          ;;
+        ;;
+    esac
+    case $gl_gcc_version in
+      *gcc*' ('*') '?.* | gcc*' ('*') '1[[0-3]].*)
+        # In GCC < 14 the option either does not exist,
+        # or is accepted but always warns.
+        ;;
+      *)
+        AS_VAR_APPEND([$1], [' -Wuseless-cast'])
+        ;;
+    esac
+    case $gl_gcc_version in
+      *gcc*' ('*') '?.* | gcc*' ('*') '1[[0-4]].*)
+        # In GCC < 15 the option either does not exist,
+        # or is accepted but always warns.
+        ;;
+      *)
+        AS_VAR_APPEND([$1], [' -Wzero-as-null-pointer-constant'])
+        ;;
     esac
   fi
 
   # These options are not supported by gcc, but are useful with clang.
   AS_VAR_APPEND([$1], [' -Wthread-safety'])
+
+  # These options are not supported by gcc, only by clang.  clang enables
+  # them by default, but they are never useful.  So, disable them.
+  # Note! This applies *only* to options that are really never useful.
+  #       When in doubt, let the package maintainer decide.  The principle
+  #       of this module is to enable *all* possible warnings and then allow
+  #       the package maintainer to disable warnings they find not useful
+  #       in the context of their package.
+  # Gnulib uses #include_next in many .h files.
+  AS_VAR_APPEND([$1], [' -Wno-gnu-include-next'])
+  # C programmers know what '+' does. These warning options are targeted
+  # at fresh C programmers that are used to JavaScript, Java, or C#.
+  AS_VAR_APPEND([$1], [' -Wno-string-plus-int'])
+  AS_VAR_APPEND([$1], [' -Wno-string-plus-char'])
 
   # Disable specific options as needed.
   if test "$gl_cv_cc_nomfi_needed" = yes; then
@@ -198,7 +232,7 @@ AC_DEFUN([gl_MANYWARN_ALL_GCC(C)],
   fi
 
   # This warning have too many false alarms in GCC 11.2.1.
-  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101713
+  # https://gcc.gnu.org/PR101713
   AS_VAR_APPEND([$1], [' -Wno-analyzer-malloc-leak'])
 
   AC_LANG_POP([C])

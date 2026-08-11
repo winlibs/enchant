@@ -48,13 +48,13 @@ MockProvider2Identify (EnchantProvider *)
 {
 	return "mock2";
 }
-static void Request_Dictionary_ProviderConfiguration1 (EnchantProvider * me, const char *)
+static void Request_Dictionary_ProviderConfiguration1 (EnchantProvider * me)
 {
 	 me->request_dict = RequestDictionary1;
 	 me->dispose_dict = MockProviderDisposeDictionary;
 	 me->identify = MockProvider1Identify;
 }
-static void Request_Dictionary_ProviderConfiguration2 (EnchantProvider * me, const char *)
+static void Request_Dictionary_ProviderConfiguration2 (EnchantProvider * me)
 {
 	 me->request_dict = RequestDictionary2;
 	 me->dispose_dict = MockProviderDisposeDictionary;
@@ -275,14 +275,6 @@ TEST_FIXTURE(EnchantBrokerSetOrdering_TestFixture,
 
 /////////////////////////////////////////////////////////////////////////////
 // Test Error Conditions
-TEST_FIXTURE(EnchantBrokerSetOrdering_TestFixture,
-			 EnchantBrokerSetOrdering_NullBroker_DoNothing)
-{
-	enchant_broker_set_ordering(_broker, "qaa", "mock2,mock1");
-	enchant_broker_set_ordering(NULL, "qaa", "mock1,mock2");
-	CHECK_EQUAL(Mock2ThenMock1, GetProviderOrder("qaa"));
-}
-
 TEST_FIXTURE(EnchantBrokerSetOrdering_TestFixture,
 			 EnchantBrokerSetOrdering_NullLanguageTag_DoNothing)
 {

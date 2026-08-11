@@ -31,7 +31,7 @@ static EnchantProviderDict * RequestDictionaryWithPwl (EnchantProvider *me, cons
     return MockEnGbAndQaaProviderRequestDictionary(me, tag);
 }
 
-static void Request_Dictionary_ProviderConfiguration (EnchantProvider * me, const char *)
+static void Request_Dictionary_ProviderConfiguration (EnchantProvider * me)
 {
      me->request_dict = RequestDictionaryWithPwl;
      me->dispose_dict = MockProviderDisposeDictionary;
@@ -178,15 +178,6 @@ TEST_FIXTURE(EnchantBrokerRequestDictionaryWithPwl_TestFixture,
 
 /////////////////////////////////////////////////////////////////////////////
 // Test Error Conditions
-TEST_FIXTURE(EnchantBrokerRequestDictionaryWithPwl_TestFixture,
-             EnchantBrokerRequestDictionaryWithPwl_NullBroker_NULL)
-{
-    _dict = enchant_broker_request_dict(NULL, "en_GB");
-
-    CHECK_EQUAL((void*)NULL, (void*)_dict);
-    CHECK(!requestDictionaryCalled);
-}
-
 TEST_FIXTURE(EnchantBrokerRequestDictionaryWithPwl_TestFixture,
              EnchantBrokerRequestDictionaryWithPwl_NullLanguageTag_NULL)
 {

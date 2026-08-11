@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2025 Free Software Foundation, Inc.
+# Copyright (C) 2002-2026 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,8 +43,10 @@ AC_DEFUN([gl_EARLY],
   AC_REQUIRE([gl_PROG_AR_RANLIB])
 
   # Code from module absolute-header:
+  # Code from module bcp47:
   # Code from module bool:
   # Code from module bootstrap:
+  # Code from module c-ctype:
   # Code from module c99:
   # Code from module configmake:
   # Code from module extensions:
@@ -62,18 +64,22 @@ AC_DEFUN([gl_EARLY],
   # Code from module gnulib-i18n:
   # Code from module include_next:
   # Code from module inline-source:
-  # Code from module locale-h:
   # Code from module manywarnings:
+  # Code from module memeq:
   # Code from module msvc-inval:
   # Code from module msvc-nothrow:
   # Code from module options-parser:
   # Code from module relocatable-lib-lgpl:
+  # Code from module snippet/_Noreturn:
   # Code from module snippet/arg-nonnull:
   # Code from module snippet/c++defs:
   # Code from module snippet/warn-on-use:
   # Code from module ssize_t:
   # Code from module std-gnu11:
   # Code from module stddef-h:
+  # Code from module stdlib-h:
+  # Code from module streq:
+  # Code from module string-h:
   # Code from module sys_file-h:
   # Code from module sys_types-h:
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
@@ -124,13 +130,11 @@ AC_DEFUN([gl_INIT],
   ])
   gl_UNISTD_MODULE_INDICATOR([getopt-posix])
   gl_MUSL_LIBC
-  AC_SUBST([LIBINTL])
-  AC_SUBST([LTLIBINTL])
+  gl_GETTEXT_H
   gl_GNU_MAKE
   GNULIB_I18N
-  gl_LOCALE_H
-  gl_LOCALE_H_REQUIRE_DEFAULTS
-  AC_PROG_MKDIR_P
+  gl_FUNC_MEMEQ
+  gl_STRING_MODULE_INDICATOR([memeq])
   AC_REQUIRE([gl_MSVC_INVAL])
   gl_CONDITIONAL([GL_COND_OBJ_MSVC_INVAL],
                  [test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1])
@@ -142,11 +146,18 @@ AC_DEFUN([gl_INIT],
   if test $RELOCATABLE = yes; then
     AC_LIBOBJ([relocatable])
   fi
-  gl_LIBDL
   gt_TYPE_SSIZE_T
   gl_STDDEF_H
   gl_STDDEF_H_REQUIRE_DEFAULTS
   gl_CONDITIONAL_HEADER([stddef.h])
+  AC_PROG_MKDIR_P
+  gl_STDLIB_H
+  gl_STDLIB_H_REQUIRE_DEFAULTS
+  AC_PROG_MKDIR_P
+  gl_FUNC_STREQ
+  gl_STRING_MODULE_INDICATOR([streq])
+  gl_STRING_H
+  gl_STRING_H_REQUIRE_DEFAULTS
   AC_PROG_MKDIR_P
   gl_SYS_FILE_H
   gl_SYS_FILE_H_REQUIRE_DEFAULTS
@@ -348,8 +359,13 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/inline-source
   build-aux/options-parser
   doc/relocatable.texi
+  lib/_Noreturn.h
   lib/arg-nonnull.h
+  lib/bcp47.c
+  lib/bcp47.h
   lib/c++defs.h
+  lib/c-ctype.c
+  lib/c-ctype.h
   lib/fcntl.in.h
   lib/flock.c
   lib/getopt-cdefs.in.h
@@ -362,7 +378,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getopt1.c
   lib/getopt_int.h
   lib/gettext.h
-  lib/locale.in.h
+  lib/memeq.c
   lib/msvc-inval.c
   lib/msvc-inval.h
   lib/msvc-nothrow.c
@@ -371,6 +387,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/relocatable.h
   lib/relocatable.valgrind
   lib/stddef.in.h
+  lib/stdlib.c
+  lib/stdlib.in.h
+  lib/streq.c
+  lib/string.in.h
   lib/sys_file.in.h
   lib/sys_types.in.h
   lib/unistd.c
@@ -380,6 +400,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/absolute-header.m4
   m4/build-to-host.m4
   m4/c-bool.m4
+  m4/codeset.m4
   m4/configmake.m4
   m4/extensions.m4
   m4/extern-inline.m4
@@ -387,13 +408,16 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl_h.m4
   m4/flock.m4
   m4/getopt.m4
+  m4/gettext_h.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/gnulib-i18n.m4
   m4/include_next.m4
-  m4/locale_h.m4
+  m4/libdl.m4
+  m4/locale-en.m4
   m4/manywarnings-c++.m4
   m4/manywarnings.m4
+  m4/memeq.m4
   m4/msvc-inval.m4
   m4/msvc-nothrow.m4
   m4/musl.m4
@@ -404,6 +428,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/ssize_t.m4
   m4/std-gnu11.m4
   m4/stddef_h.m4
+  m4/stdlib_h.m4
+  m4/streq.m4
+  m4/string_h.m4
   m4/sys_cdefs_h.m4
   m4/sys_file_h.m4
   m4/sys_types_h.m4

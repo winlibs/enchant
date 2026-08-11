@@ -87,8 +87,10 @@ public class EnchantDict {
 	}
 
 	public static int is_word_character(EnchantDict? self, uint32 uc_in, real_size_t n)
-	requires(n <= 2)
 	{
+		if (n > 2)
+			return 0;
+
 		if (self != null && self.dict.is_word_character_method != null)
 			return self.dict.is_word_character_method(self.dict, uc_in, n);
 
@@ -125,27 +127,24 @@ public class EnchantDict {
 		}
 	}
 
-	/* This is a static method method because Vala does not let us
-	 * alter the value returned when an argument is invalid.
-	 * In this case, we want to return -1 when 'dict' is null. */
-	public static int check(EnchantDict? self, string? word_buf, real_ssize_t len) {
-		if (self == null || word_buf == null)
+	public int check(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
 			return -1;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return -1;
 
-		self.clear_error();
+		this.clear_error();
 
 		/* first, see if it's excluded */
-		if (self.excluded(word))
+		if (this.excluded(word))
 			return 1;
 
 		/* then, see if it's in our pwl or session */
-		if (self.contains(word))
+		if (this.contains(word))
 			return 0;
 
-		return self.dict.check_method(self.dict, word, word.length);
+		return this.dict.check_method(this.dict, word, word.length);
 	}
 
 	/* Filter out suggestions that are null, invalid UTF-8 or in the exclude
@@ -159,7 +158,9 @@ public class EnchantDict {
 	}
 
 	[CCode (array_length_pos = 3, array_length_type = "size_t")]
-	public string[]? suggest(string word_buf, real_ssize_t len) {
+	public string[]? suggest(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return null;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return null;
@@ -174,13 +175,17 @@ public class EnchantDict {
 		return dict_suggs;
 	}
 
-	public void add(string word_buf, real_ssize_t len) {
+	public void add(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return;
 		this.pwl.add(this, word_buf, len);
 		this.exclude_pwl.remove(this, word_buf, len);
 		this.add_to_session(word_buf, len);
 	}
 
-	public void add_to_session(string word_buf, real_ssize_t len) {
+	public void add_to_session(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return;
@@ -191,7 +196,9 @@ public class EnchantDict {
 			dict.add_to_session_method(dict, word, word.length);
 	}
 
-	public int is_added(string word_buf, real_ssize_t len) {
+	public int is_added(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return 0;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return 0;
@@ -199,13 +206,17 @@ public class EnchantDict {
 		return this.contains(word) ? 1 : 0;
 	}
 
-	public void remove(string word_buf, real_ssize_t len) {
+	public void remove(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return;
 		this.pwl.remove(this, word_buf, len);
 		this.exclude_pwl.add(this, word_buf, len);
 		this.remove_from_session(word_buf, len);
 	}
 
-	public void remove_from_session(string word_buf, real_ssize_t len) {
+	public void remove_from_session(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return;
@@ -216,7 +227,9 @@ public class EnchantDict {
 			dict.remove_from_session_method(dict, word, word.length);
 	}
 
-	public int is_removed(string word_buf, real_ssize_t len) {
+	public int is_removed(string? word_buf, real_ssize_t len) {
+		if (word_buf == null)
+			return 0;
 		string word = buf_to_utf8_string(word_buf, len);
 		if (word == null)
 			return 0;
@@ -225,8 +238,8 @@ public class EnchantDict {
 	}
 
 	/* Stub for obsolete API. */
-	public void store_replacement(string mis, real_ssize_t mis_len,
-								  string cor, real_ssize_t cor_len) { }
+	public void store_replacement(string? mis, real_ssize_t mis_len,
+								  string? cor, real_ssize_t cor_len) { }
 
 	public void free_string_list(char **string_list) {
 		this.clear_error();
@@ -234,9 +247,11 @@ public class EnchantDict {
 	}
 
 	public void describe(EnchantDictDescribeFn fn, void *user_data)
-	requires(fn != null)
 	{
 		this.clear_error();
+
+		if (fn == null)
+			return;
 
 		string name;
 		string desc;
@@ -255,7 +270,9 @@ public class EnchantDict {
 	}
 
 	// FIXME: This API is only used for testing.
-	public void set_error(string err) {
+	public void set_error(string? err) {
+		if (err == null)
+			return;
 		this.dict.set_error(err);
 	}
 

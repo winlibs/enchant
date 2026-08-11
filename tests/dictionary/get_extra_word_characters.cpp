@@ -53,7 +53,7 @@ static EnchantProviderDict* MockProviderRequestGetExtraWordCharactersMockDiction
     return dict;
 }
 
-static void DictionaryGetExtraWordCharacters_ProviderConfiguration (EnchantProvider * me, const char *)
+static void DictionaryGetExtraWordCharacters_ProviderConfiguration (EnchantProvider * me)
 {
      me->request_dict = MockProviderRequestGetExtraWordCharactersMockDictionary;
      me->dispose_dict = MockProviderDisposeDictionary;
@@ -80,7 +80,7 @@ static EnchantProviderDict* MockProviderRequestNoGetExtraWordCharactersMockDicti
     return dict;
 }
 
-static void DictionaryNoGetExtraWordCharacters_ProviderConfiguration (EnchantProvider * me, const char *)
+static void DictionaryNoGetExtraWordCharacters_ProviderConfiguration (EnchantProvider * me)
 {
      me->request_dict = MockProviderRequestNoGetExtraWordCharactersMockDictionary;
      me->dispose_dict = MockProviderDisposeDictionary;
@@ -126,13 +126,4 @@ TEST_FIXTURE(EnchantDictionaryGetExtraWordCharactersNotImplemented_TestFixture,
 {
     _extraWordCharacters = enchant_dict_get_extra_word_characters(_dict);
     CHECK_EQUAL(_extraWordCharacters, "");
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// Test Error Conditions
-TEST_FIXTURE(EnchantDictionaryGetExtraWordCharacters_TestFixture,
-             EnchantDictionaryGetExtraWordCharacters_NullDictionarySuppliedMethodNotCalled)
-{
-    _extraWordCharacters = enchant_dict_get_extra_word_characters(NULL);
-    CHECK(!dictGetExtraWordCharactersCalled);
 }

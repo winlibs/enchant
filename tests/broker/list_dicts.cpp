@@ -65,7 +65,7 @@ struct EnchantBrokerListDictionaries_TestFixtureBase : EnchantBrokerTestFixture
     std::vector<DictionaryDescription> _dictionaryList;
 };
 
-static void List_Dictionaries_ProviderConfiguration (EnchantProvider * me, const char *)
+static void List_Dictionaries_ProviderConfiguration (EnchantProvider * me)
 {
      me->list_dicts=ListDictionaries;
 }
@@ -92,7 +92,7 @@ DuplicateEnGbListDictionaries (EnchantProvider *,
     return out_list;
 }
 
-static void List_Dictionaries_ProviderConfigurationDuplicateTags (EnchantProvider * me, const char *)
+static void List_Dictionaries_ProviderConfigurationDuplicateTags (EnchantProvider * me)
 {
      me->list_dicts=DuplicateEnGbListDictionaries;
 }
@@ -155,13 +155,6 @@ TEST_FIXTURE(EnchantBrokerListDictionaries_TestFixture,
 
 /////////////////////////////////////////////////////////////////////////////
 // Test Error Conditions
-TEST_FIXTURE(EnchantBrokerListDictionaries_TestFixture,
-             EnchantBrokerListDictionaries_NullBroker_DoNotCallDescribeFunction)
-{
-    enchant_broker_list_dicts(NULL, EnchantDictionaryDescribeAssignUserDataToStaticCallback, NULL);
-    CHECK(!listDictionariesCalled);
-}
-
 TEST_FIXTURE(EnchantBrokerListDictionaries_TestFixture,
              EnchantBrokerListDictionaries_NullCallback_DoNotCallDescribeFunction)
 {
