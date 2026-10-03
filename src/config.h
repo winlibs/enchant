@@ -9,9 +9,9 @@ typedef SSIZE_T ssize_t;
 
 #define _GL_CONFIG_H_INCLUDED 1
 #define PACKAGE "enchant"
-#define PACKAGE_VERSION "2.8.19"
+#define PACKAGE_VERSION "2.8.21"
 #define ENCHANT_MAJOR_VERSION "2"
-#define ENCHANT_VERSION_STRING "2.8.19"
+#define ENCHANT_VERSION_STRING "2.8.21"
 
 #define ENABLE_RELOCATABLE 0
 #define HAVE_FLOCK 0
